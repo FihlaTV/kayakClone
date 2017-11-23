@@ -6,7 +6,9 @@
     "start": "node app.js"
   },
   "dependencies": {
+    "ejs": "*",
     "express": "3.2.6",
-    "ejs": "*"
+    "mlab-data-api": "^0.2.2",
+    "mongoose": "^4.13.1"
   }
 }

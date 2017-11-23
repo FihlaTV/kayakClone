@@ -1,8 +1,12 @@
 
+
+//Mongo dependencies
+db_service = require('./mongodb-services/dbservices')
+
+
 /**
  * Module dependencies.
  */
-
 var express = require('express')
   , routes = require('./routes')
   , user = require('./routes/user')
@@ -12,7 +16,7 @@ var express = require('express')
 var app = express();
 
 // all environments
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 9000);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(express.favicon());
@@ -37,14 +41,10 @@ http.createServer(app).listen(app.get('port'), function(){
 
 // vishnu
 
-app.post('/login', function (req, res) {
-//code here
-});
-
-app.post('/register', function (req, res, next) {
-
-
-
+app.GET("/search_flights", function (req, res) {
+  db_service.listflights(function (data) {
+      res.send(data);
+  });
 });
 
 // vishnu ends
