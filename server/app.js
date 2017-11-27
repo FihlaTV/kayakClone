@@ -1,50 +1,65 @@
 
 
-//Mongo dependencies
-db_service = require('./mongodb-services/dbservices')
 
 
-/**
- * Module dependencies.
- */
-var express = require('express')
-  , routes = require('./routes')
-  , user = require('./routes/user')
-  , http = require('http')
-  , path = require('path');
-
+var express = require('express');
+var bodyParser= require('body-parser');
 var app = express();
-
-// all environments
-app.set('port', process.env.PORT || 9000);
-app.set('views', __dirname + '/views');
-app.set('view engine', 'ejs');
-app.use(express.favicon());
-app.use(express.logger('dev'));
-app.use(express.bodyParser());
-app.use(express.methodOverride());
-app.use(app.router);
-app.use(express.static(path.join(__dirname, 'public')));
-
-// development only
-if ('development' == app.get('env')) {
-  app.use(express.errorHandler());
-}
-
-app.get('/', routes.index);
-app.get('/users', user.list);
-
-http.createServer(app).listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
-});
+var MongoClient = require('mongodb').MongoClient;
+var mysqldbservice = require('./mysql/mysql-services');
+var mysql = require('mysql');
 
 
-// vishnu
+app.use(bodyParser.urlencoded({extended: true}))
 
-app.GET("/search_flights", function (req, res) {
-  db_service.listflights(function (data) {
-      res.send(data);
-  });
-});
 
-// vishnu ends
+// MOngo Connection
+
+app.listen(3001, function() {
+    console.log('listening on 3000')
+  })
+
+var db
+MongoClient.connect('mongodb://kayak:kayak273@ds259175.mlab.com:59175/kayak', (err, database) => {
+    // ... start the server
+    if (err) return console.log(err)
+    db = database
+    app.listen(3000, () => {
+      console.log('listening on 3000')
+    })
+  })
+
+
+
+ //FLIGHT APIs
+  app.get('/', (req, res) => {
+      res.sendFile(__dirname + '/index.html')
+  })
+
+  app.get('/list', (req, res) => {
+   // var cursor = db.collection('quotes').find()
+    db.collection('flightsData').find().toArray(function(err, results) {
+        console.log(results)
+        // send HTML file populated with quotes here
+      })
+  })
+
+ app.get('/search', (req, res) => {
+    // var cursor = db.collection('quotes').find()
+     db.collection('flightsData').find({"destination":"Boston", "Date": "2017-11-01", "source": "Phoenix"}).toArray(function(err, results) {
+         console.log(results)
+         // send HTML file populated with quotes here
+       })
+   })
+
+
+   app.get('/details', (req, res) => {
+    // var cursor = db.collection('quotes').find()
+     db.collection('flightsData').findOne({"destination":"Boston", "Date": "2017-11-01", "source": "Phoenix", "fligtName": "Virgin America"},function(err, results) {
+         console.log(results)
+         console.log(results._id)
+       })
+   })
+
+   app.get('/userinfo',mysqldbservice.getAllUsers)
+

@@ -1,14 +1,17 @@
 {
-  "name": "server",
-  "version": "0.0.1",
-  "private": true,
+  "name": "flight",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "start": "node app.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "ejs": "*",
-    "express": "3.2.6",
-    "mlab-data-api": "^0.2.2",
-    "mongoose": "^4.13.1"
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "mongodb": "^2.2.33",
+    "mysql": "^2.15.0"
   }
 }
