@@ -12,7 +12,7 @@ app.use(bodyParser.urlencoded({extended: true}))
 // MOngo Connection
 
 app.listen(3001, function() {
-    console.log('listening on 3000')
+    console.log('listening on 3001')
   })
 
 var db
@@ -58,3 +58,4 @@ MongoClient.connect('mongodb://kayak:kayak273@ds259175.mlab.com:59175/kayak', (e
    })
 
    app.get('/userinfo',mysqldbservice.getAllUsers)
+   app.post('/booking',mysqldbservice.putdata);
