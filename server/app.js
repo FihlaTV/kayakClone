@@ -1,7 +1,3 @@
-
-
-
-
 var express = require('express');
 var bodyParser= require('body-parser');
 var app = express();
@@ -61,5 +57,6 @@ MongoClient.connect('mongodb://kayak:kayak273@ds259175.mlab.com:59175/kayak', (e
        })
    })
 
-   app.get('/userinfo',mysqldbservice.getAllUsers)
+   app.get('/userinfo',mysqldbservice.getUserInfo)
 
+   //flight booking page APIs
