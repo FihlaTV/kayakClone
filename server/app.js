@@ -48,6 +48,13 @@ MongoClient.connect('mongodb://kayak:kayak273@ds259175.mlab.com:59175/kayak', (e
        })
    })
 
+ app.get('/search', (req, res) => {
+    // var cursor = db.collection('quotes').find()
+     db.collection('flightsData').find({"destination":"Boston", "Date": "2017-11-01", "source": "Phoenix"}).toArray(function(err, results) {
+         console.log(results)
+         // send HTML file populated with quotes here
+       })
+   })
 
    app.get('/details', (req, res) => {
     // var cursor = db.collection('quotes').find()
