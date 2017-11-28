@@ -107,5 +107,48 @@ function insertData(callback,sqlQuery){
     });
 }
 
+
+//user_cc_details
+var user_cc_details=function (req,res)
+{
+    var user_cc_details = "SELECT * FROM kayak.carddetails";
+    console.log("Query is:"+user_cc_details);
+    var jsonString;
+
+    mysql.fetchData(function(err,results){
+        if(err){
+            throw err;
+        }
+        else
+        {
+            if(results.length > 0){
+
+                var rows = results;
+                jsonString = JSON.stringify(results);
+                var jsonParse = JSON.parse(jsonString);
+
+
+
+                console.log("Results: "+(results));
+
+                console.log("Results Stringify:"+(jsonString));
+                console.log("card number"+(jsonParse[0].cardnumber));
+
+            }
+            else {
+
+                console.log("No users found in database");
+
+            }
+
+
+        }
+    },user_cc_details);
+    return(jsonString)
+}
+
+
+
 exports.getUserInfo=getUserInfo;
-exports.insertData=insertData;
+exports.user_cc_details=user_cc_details;
+//exports.flight_trip_details=flight_trip_details;

@@ -10,6 +10,7 @@ var status;
 
 app.use(express.bodyParser());
 
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");
@@ -57,13 +58,7 @@ MongoClient.connect('mongodb://kayak:kayak273@ds259175.mlab.com:59175/kayak', (e
        })
    })
 
- app.get('/search', (req, res) => {
-    // var cursor = db.collection('quotes').find()
-     db.collection('flightsData').find({"destination":"Boston", "Date": "2017-11-01", "source": "Phoenix"}).toArray(function(err, results) {
-         console.log(results)
-         // send HTML file populated with quotes here
-       })
-   })
+
 
    app.get('/details', (req, res) => {
     // var cursor = db.collection('quotes').find()
@@ -75,6 +70,35 @@ MongoClient.connect('mongodb://kayak:kayak273@ds259175.mlab.com:59175/kayak', (e
 
 
    //app.get('/userinfo',mysqldbservice.getUserInfo)
+
+   //app.get('/user_cc_details',mysqldbservice.user_cc_details)
+
+
+
+   // Update MySQL database
+
+   app.post('/user_cc_details',function(req,res){
+
+    var cardnumber = req.body.cardnumber
+    var cvv = req.body.cvv
+    var name =req.body.name
+    var expdate = req.body.expdate
+    var email = req.body.email
+    var ccpasscode =req.body.ccpasscode
+
+
+    //var email = req.body.email;
+    //var pass = req.body.password;
+    console.log(req.body)
+    var data = mysqldbservice.user_cc_details
+console.log(data)
+
+
+//console.log(data)
+res.send("Credit card Authenticated")
+});
+
+
 
    //flight booking page APIs
 
