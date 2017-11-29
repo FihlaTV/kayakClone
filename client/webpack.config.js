@@ -1,60 +1,24 @@
 var path = require('path');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
-var webpack = require('webpack');
+
 module.exports = {
-  entry: './src/index.jsx',
+  entry: './app/index.js',
   output: {
-    path: path.resolve('dist'),
-    filename: 'bundle.js'
-  },
-  resolve: {
-    extensions: ['.js', '.jsx', '.css', '.jpg', '.scss'],
-    moduleExtensions: ['node_modules']
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'index_bundle.js',
+    publicPath: '/'
   },
   module: {
-    loaders: [
-      {
-        test: /\.jsx?$/,
-        loaders: ['react-hot'],
-        include: path.join(__dirname, 'public')
-      },
-      {
-        test: /\.jsx?$/,
-        exclude: /(node_modules|bower_components)/,
-        loader: 'babel-loader',
-        query: {
-          presets: ['react', 'es2015', 'stage-3']
-        }
-      },
-      { test: /\.css$/, loader: 'style-loader!css-loader' },
-      {
-        test: /\.scss$/,
-        loader: 'style!css!sass'
-      },
-
-      {
-        test: /\.(jpg|png|svg)$/,
-        loader: 'url-loader',
-        options: {
-          limit: 25000
-        }
-      }
+    rules: [
+      { test: /\.(js)$/, use: 'babel-loader' }
     ]
+  },
+  devServer: {
+    historyApiFallback: true,
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/index.html',
-      filename: 'index.html',
-      inject: 'body'
+      template: 'app/index.html'
     })
-  ],
-  devServer: {
-    historyApiFallback: true,
-    proxy: {
-      '/api/*': {
-        target: 'http://localhost:3000',
-        secure: false
-      }
-    }
-  }
+  ]
 };
