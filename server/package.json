@@ -12,6 +12,8 @@
     "body-parser": "^1.18.2",
     "express": "3.2.6",
     "mongodb": "^2.2.33",
-    "mysql": "^2.15.0"
+    "mysql": "^2.15.0",
+    "passport-local-authenticate": "^1.2.0",
+    "random-number": "0.0.9"
   }
 }
