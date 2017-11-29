@@ -65,18 +65,21 @@ var getUserInfo=function(callback,sqlQuery){
 
                         console.log("Results Stringify:"+(jsonString));
                         console.log("Results Parse:"+(jsonParse));
+
                     }
+
                     else {
 
                         console.log("No users found in database");
 
                     }
+                    callback(err, results);
                 }
             });
         }
 
     });
-    return jsonString;
+
 }
 function insertData(callback,sqlQuery){
 

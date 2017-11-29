@@ -7,6 +7,8 @@ var mysql = require('mysql');
 var ObjectId = require('mongodb').ObjectID;
 var urlencodedPraser=bodyParser.urlencoded({extended:false});
 var status;
+var auth = require('passport-local-authenticate');
+var rn = require('random-number');
 
 app.use(express.bodyParser());
 
@@ -145,12 +147,12 @@ app.post('/updateFlightdata',urlencodedPraser,function(req,res){
     res.json({staus:status});
 });
 
-//update user account
+//update user account by admin
 
 app.post('/updateUserAccount',urlencodedPraser,function(req,res){
     var updateUser="update userinfo set firstname='" +req.body.firstname +"',"+
-        "lastname='"+req.body.lastname+ "',password='"+ req.body.password +"',address='"+req.body.address +"',city='"+req.body.city+
-        " ',state='"+req.body.state+"',  zipcode="+req.body.zipcode+",phone='"+req.body.phone+"',  image='"+req.body.image+"'";
+        "lastname='"+req.body.lastname+ "',address='"+req.body.address +"',city='"+req.body.city+
+        " ',state='"+req.body.state+"',  zipcode="+req.body.zipcode+",phone='"+req.body.phone+"',  image='"+req.body.image+"' where email='"+req.body.email+"'";
     console.log("Query is:"+updateUser );
     var status=0;
     var result;
@@ -168,6 +170,36 @@ app.post('/updateUserAccount',urlencodedPraser,function(req,res){
     res.json({staus:status});
 });
 
+//add new user - signup
+
+app.post('/addUserAccount',urlencodedPraser,function(req,res){
+    var password="";
+    auth.hash(req.body.password, function(err, hashed) {
+        password=hashed.hash;
+
+    var addUser="insert into userinfo(email,firstname,lastname,password,address,city,state,zipcode,phone,image) values('"+req.body.email+"','" +
+        req.body.firstname +"','"+req.body.lastname+ "','"+password+"','"+req.body.address +"','"+req.body.city+
+        " ','"+req.body.state+"',"+req.body.zipcode+",'"+req.body.phone+"','"+req.body.image+"')";
+    console.log("Query is:"+addUser );
+    var status=0;
+    var result;
+
+
+    mysqldbservice.insertData(function(err,results){
+        if(err){
+            throw err;
+        }
+        else
+        {
+            status=2;
+            console.log("Data inserted successfully");
+        }
+    },addUser);
+    });
+    res.json({staus:status});
+});
+
+//get user info
 app.get('/userinfo',urlencodedPraser,function(req,res){
     var selectUser="select * from userinfo";
     console.log("Query is:"+selectUser );
@@ -180,6 +212,104 @@ app.get('/userinfo',urlencodedPraser,function(req,res){
         }
         else
         {
+            console.log("data:"+results)
+            status=2;
+            //console.log("Data inserted successfully");
+        }
+    },selectUser);
+    console.log("data:"+data)
+    res.json({staus:status});
+});
+
+//flight booking
+
+app.post('/addBookingDetails',urlencodedPraser,function(req,res){
+
+    var options = {
+        min:  0,
+        max:  10000,
+        integer: true
+    }
+    var trip_id = rn(options);
+    console.log(trip_id);
+    var saveUser;
+    for(var i=0;i<req.body.passenger_details.length;i++) {
+        saveUser = "insert into flightbookingdetails( email , tripid ,  flightsource ,  flightdestination ,  flightbaseprice ,  flighttotalprice ," +
+            "  flightpassengerdateofbirth ,  flightpassengerfirstname ,  flightpassengerlastname ,  flightpassengergender ,  journeydate ,  flightid ,  airlines ," +
+            "  flightclass  ) values('" +
+            req.body.email + "','" + trip_id + "','" + req.body.flight.flightsource + "','" +
+            req.body.flight.flightdestination + "','" + req.body.flight.flightbaseprice + "','" + req.body.totalamount + "','" + req.body.passenger_details[i].flightpassengerdateofbirth + "','" +
+            req.body.passenger_details[i].flightpassengerfirstname + "','" + req.body.passenger_details[i].flightpassengerlastname + "','" + req.body.passenger_details[i].flightpassengergender+ "','" + req.body.journeydate + "','" +
+            req.body.flight.flightid + "','" + req.body.flight.airlines + "','" + req.body.flightclass + "')";
+
+        console.log("Query is:" + saveUser);
+        status = 0;
+
+        mysqldbservice.insertData(function (err, results) {
+            if (err) {
+                throw err;
+            }
+            else {
+                status = 2;
+                console.log("Data inserted successfully");
+            }
+        }, saveUser);
+    }
+
+    var saveTripdata="insert into tripdetails values('"+trip_id+"','"+req.body.email+"','"+req.body.bookingtype+"',"+req.body.totalamount+",'"+new Date().getDate().toString()+"')"
+    mysqldbservice.insertData(function (err, results) {
+        if (err) {
+            throw err;
+        }
+        else {
+            status = 2;
+            console.log("Data inserted successfully");
+        }
+    }, saveTripdata);
+
+    res.json({staus:status});
+});
+
+//get ticket details
+app.post('/getFlightTicket',urlencodedPraser,function(req,res){
+    var selectUser="select td.tripid,td.totalamount,td.bookeddate,td.email," +
+        "fbk.flightsource,fbk.flightdestination,fbk.flightbaseprice,fbk.flightpassengerdateofbirth,fbk.flightpassengerfirstname,fbk.flightpassengerlastname," +
+        "fbk.flightpassengergender, fbk.journeydate,fbk.airlines,fbk.flightclass from tripdetails td " +
+        "inner join flightbookingdetails fbk on fbk.tripid=td.tripid where td.tripid='"+req.body.tripid+"'";
+    console.log("Query is:"+selectUser );
+    var status=0;
+    var result;
+
+    var data=mysqldbservice.getUserInfo(function(err,results){
+        if(err){
+            throw err;
+        }
+        else
+        {
+            console.log("data:"+results)
+            status=2;
+            //console.log("Data inserted successfully");
+        }
+    },selectUser);
+    console.log("data:"+data)
+    res.json({staus:status});
+});
+
+//get Hotel receipt
+app.post('/getHotelTicket',urlencodedPraser,function(req,res){
+    var selectUser="select * from tripdetails td " +
+        "inner join hotelbookingdtails hbk on hbk.tripid=td.tripid where td.tripid='"+req.body.tripid+"'";
+    console.log("Query is:"+selectUser );
+    var status=0;
+    var result;
+
+    var data=mysqldbservice.getUserInfo(function(err,results){
+        if(err){
+            throw err;
+        }
+        else
+        {
+            console.log("data:"+results)
             status=2;
             //console.log("Data inserted successfully");
         }
