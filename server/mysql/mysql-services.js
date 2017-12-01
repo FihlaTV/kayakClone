@@ -110,5 +110,30 @@ function insertData(callback,sqlQuery){
     });
 }
 
+
+
+function putdata(req,res)
+{
+	
+ 
+  var putdata ="  INSERT INTO `kayak`.`flightbookingdetails` (`email`, `bookingid`, `tripid`, `flightsource`, `flightdestination`, `flightbaseprice`, `flighttotalprice`, `flightpassengerdateofbirth`, `flightpassengerfirstname`, `flightpassengerlastname`, `flightpassengergender`, `journeydate`, `flightid`, `airlines`, `flightclass`) VALUES ('sal', '123', '123', 'boston', 'phl', '300', '330', '02/02/1995', 'salauni', 'patel', 'female', '01/01/2018', '123', 'southwest', 'first')";
+
+	console.log("Query is:"+putdata);
+	mysql.putdata(function(err,result){
+		if(err){
+		throw err;	
+		}
+		else{
+		console.log(putdata);
+		}
+	
+	   },putdata);
+    }
+
+
 exports.getUserInfo=getUserInfo;
+<<<<<<< HEAD
 exports.insertData=insertData;
+=======
+exports.putdata=putdata;
+>>>>>>> 8cd2dfa446e3e34c94bf33a7adb2f0ae09ee7550

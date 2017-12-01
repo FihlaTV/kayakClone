@@ -10,10 +10,15 @@ var status;
 //var auth = require('passport-local-authenticate');
 //var rn = require('random-number');
 
+<<<<<<< HEAD
 var redisClient = require('redis').createClient;
 var redis = redisClient(6379, 'localhost');
 
 app.use(express.bodyParser());
+=======
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended: true}))
+>>>>>>> 8cd2dfa446e3e34c94bf33a7adb2f0ae09ee7550
 
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(function(req, res, next) {
@@ -46,7 +51,11 @@ MongoClient.connect('mongodb://kayak:kayak273@ds259175.mlab.com:59175/kayak', (e
       res.sendFile(__dirname + '/index.html')
   })
 
+<<<<<<< HEAD
   //app.post('/booking',mysqldbservice.putdata);
+=======
+  app.post('/booking',mysqldbservice.putdata);
+>>>>>>> 8cd2dfa446e3e34c94bf33a7adb2f0ae09ee7550
 
 
   app.get('/listofflights', (req, res) => {
@@ -67,6 +76,7 @@ MongoClient.connect('mongodb://kayak:kayak273@ds259175.mlab.com:59175/kayak', (e
        })
    })
 */
+<<<<<<< HEAD
 
 findBookByTitleCached = function (db, redis, Boston, callback) {
     redis.get("Philadelphia", function (err, reply) {
@@ -171,6 +181,24 @@ app.post('/search2', function (req, res) {
         "source":req.body.source
     };
 
+=======
+ app.post('/searchflights', (req, res) => {
+    
+   var destination= req.body.destination;
+    var date= req.body.date;
+    var source= req.body.source;
+    
+    console.log(req.body)
+    console.log(destination)
+    console.log(req.body.destination)
+ /*
+    var flightdata = {
+        "destination":req.body.destination,
+        "Date":req.body.date, 
+        "source":req.body.source
+    };
+
+>>>>>>> 8cd2dfa446e3e34c94bf33a7adb2f0ae09ee7550
  console.log(flightdata)
 */
    // db.collection('flightsData').find(flightdata).toArray(function(err,results){
