@@ -1,12 +1,27 @@
 import React from 'react';
 import Hotels from './Hotels';
 import { Route, NavLink, HashRouter } from 'react-router-dom';
+import {
+  Dropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem
+} from 'reactstrap';
+
+import { Link } from 'react-router-dom';
+
 class Headbar extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      slidingActive: false
+      dropdownOpen: false
     };
+    this.toggle = this.toggle.bind(this);
+  }
+  toggle() {
+    this.setState({
+      dropdownOpen: !this.state.dropdownOpen
+    });
   }
   render() {
     return (
@@ -26,7 +41,6 @@ class Headbar extends React.Component {
           </ul>
         </nav>
 
-        <div className="headBarContent" />
         <a className="headbarAccount">
           <span>
             <img className="myAccount" src={'../../img/account.png'} />

@@ -13,7 +13,19 @@ module.exports = {
     moduleExtensions: ['node_modules']
   },
   module: {
-    rules: [{ test: /\.(js)$/, use: 'babel-loader' }],
+    rules: [
+      { test: /\.(js)$/, use: 'babel-loader' },
+      {
+        test: /\.css$/i,
+        loader: 'css-loader',
+        issuer: /\.html?$/i
+      },
+      {
+        test: /\.css$/i,
+        loader: ['style-loader', 'css-loader'],
+        issuer: /\.[tj]s$/i
+      }
+    ],
     loaders: [
       {
         test: /\.(jpg|png|svg)$/,
@@ -21,7 +33,10 @@ module.exports = {
         options: {
           limit: 25000
         }
-      }
+      },
+      { test: /\.css$/, loader: 'style-loader!css-loader' },
+      { test: /\.png$/, loader: 'url-loader?limit=100000' },
+      { test: /\.jpg$/, loader: 'file-loader' }
     ]
   },
   devServer: {

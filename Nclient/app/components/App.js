@@ -4,9 +4,10 @@ import { browserHistory } from 'react-router';
 import { IndexRoute } from 'react-router';
 import Headbar from './Headbar';
 import Header from './Header';
-import Flights from './Flights';
+import FlightList from './FlightList';
 import Home from './Home';
-class Temp extends React.Component {
+
+class App extends React.Component {
   constructor() {
     super();
     this.state = {
@@ -16,14 +17,13 @@ class Temp extends React.Component {
   render() {
     return (
       <Router history={browserHistory}>
-        <div className="wrap">
-          <Route path="/" component={Home}>
-            <IndexRoute path="/flights" component={Home} />
-          </Route>
+        <div>
+          <Route exact path="/" component={Home} />
+          <Route exact path="/flight" component={FlightList} />
         </div>
       </Router>
     );
   }
 }
 
-export default Temp;
+export default App;
