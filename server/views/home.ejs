@@ -441,18 +441,18 @@
 
                                             <div class="tab-pane fade" id="tab-4">
                                                 <h2>Search for Cheap Rental Cars</h2>
-                                                <form>
+                                                <form action="/carSearch" method="post">
                                                     <div class="row">
                                                         <div class="col-md-6">
                                                             <div class="form-group form-group-lg form-group-icon-left"><i class="fa fa-map-marker input-icon"></i>
                                                                 <label>Pick-up Location</label>
-                                                                <input class="typeahead form-control" placeholder="City, Airport, U.S. Zip" type="text" />
+                                                                <input class="typeahead form-group form-control" name="pickUp" placeholder="City, Airport, Point of Interest or U.S. Zip Code" type="text" />
                                                             </div>
                                                         </div>
                                                         <div class="col-md-6">
                                                             <div class="form-group form-group-lg form-group-icon-left"><i class="fa fa-map-marker input-icon"></i>
                                                                 <label>Drop-off Location</label>
-                                                                <input class="typeahead form-control" placeholder="City, Airport, U.S. Zip" type="text" />
+                                                                <input class="typeahead form-group form-control" name="dropOff" placeholder="City, Airport, Point of Interest or U.S. Zip Code" type="text" />
                                                             </div>
                                                         </div>
                                                     </div>

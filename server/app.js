@@ -13,6 +13,7 @@ var routes = require('./routes');
 var session = require('client-sessions');
 var hotels = require('./javascript/hotels');
 var flights = require('./javascript/flights');
+var cars = require('./javascript/cars');
 
 var app = express();
 app.use(express.static(path.join(__dirname, 'public')));
@@ -60,6 +61,7 @@ app.get('/', routes.index);
 app.get('/account', routes.account);
 app.post('/hotelSearch', hotels.hotelSearch);
 app.post('/flightSearch', flights.flightSearch);
+app.post('/carSearch', cars.carSearch);
 
 app.get('/list', (req, res) => {
   // var cursor = db.collection('quotes').find()
