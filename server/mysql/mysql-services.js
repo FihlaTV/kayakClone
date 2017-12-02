@@ -132,8 +132,4 @@ function putdata(req,res)
 
 
 exports.getUserInfo=getUserInfo;
-<<<<<<< HEAD
-exports.insertData=insertData;
-=======
 exports.putdata=putdata;
->>>>>>> 8cd2dfa446e3e34c94bf33a7adb2f0ae09ee7550

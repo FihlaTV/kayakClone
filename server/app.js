@@ -10,15 +10,10 @@ var status;
 //var auth = require('passport-local-authenticate');
 //var rn = require('random-number');
 
-<<<<<<< HEAD
 var redisClient = require('redis').createClient;
 var redis = redisClient(6379, 'localhost');
 
 app.use(express.bodyParser());
-=======
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({extended: true}))
->>>>>>> 8cd2dfa446e3e34c94bf33a7adb2f0ae09ee7550
 
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(function(req, res, next) {
@@ -51,13 +46,7 @@ MongoClient.connect('mongodb://kayak:kayak273@ds259175.mlab.com:59175/kayak', (e
       res.sendFile(__dirname + '/index.html')
   })
 
-<<<<<<< HEAD
-  //app.post('/booking',mysqldbservice.putdata);
-=======
-  app.post('/booking',mysqldbservice.putdata);
->>>>>>> 8cd2dfa446e3e34c94bf33a7adb2f0ae09ee7550
-
-
+ //List of all flights without any search parameters... Do not use this when user searches flights...
   app.get('/listofflights', (req, res) => {
     db.collection('flightsData').find().toArray(function(err, results) {
         console.log(results)
@@ -66,94 +55,74 @@ MongoClient.connect('mongodb://kayak:kayak273@ds259175.mlab.com:59175/kayak', (e
   })
 
 
+//Api and function for searching flights according to source, destination for a particular date with redis caching
 
-/*
- app.get('/search', (req, res) => {
-    // var cursor = db.collection('quotes').find()
-     db.collection('flightsData').find({"destination":"Boston", "Date": "2017-11-01", "source": "Phoenix"}).toArray(function(err, results) {
-         console.log(results)
-         // send HTML file populated with quotes here
-       })
-   })
-*/
-<<<<<<< HEAD
-
-findBookByTitleCached = function (db, redis, Boston, callback) {
-    redis.get("Philadelphia", function (err, reply) {
-        if (err) callback(null);
-        else if (reply) //Book exists in cache
+findflightsCached = function (db, redis, source1,destination1,date1, callback) {
+    redis.hgetall("data", function (err, reply) {
+       if (reply) 
         callback(JSON.parse(reply));
         else {
-            //Book doesn't exist in cache - we need to query the main database
-            db.collection('flightsData').findOne({
-                source: "Philadelphia"
-            }, function (err, doc) {
-                if (err || !doc) callback(null);
-                else {
-                    redis.set("Philadelphia", JSON.stringify(doc), function () {
-                        callback(doc);
-                    });
-                }
-            });
-        }
-    });
-};
-
-
-app.get('/search1', function (req, res) {
-   
-    
-        findBookByTitleCached(db, redis, "Philadelphia", function (book) {
-            
-            res.status(200).send(book);
-        });
-    
-});
-
-
-
-
-findflightsCached = function (db, redis, source,destination, callback) {
-    redis.get(source,destination, function (err, reply) {
-        if (err) callback(null);
-        else if (reply) //Book exists in cache
-        callback(JSON.parse(reply));
-        else {
-            //Book doesn't exist in cache - we need to query the main database
-            db.collection('flightsData').findOne({
-                source: source,
-                destination : destination
-            }, function (err, doc) {
-                if (err || !doc) callback(null);
-                else {
-                    redis.set(destination, JSON.stringify(doc), function () {
+                db.collection('flightsData').find({
+                "source": source1,
+                "destination" : destination1,
+                "Date": date1
+            }).toArray(function (err, doc) {
+                
+                    redis.hmset("data","source",source1,"destination",destination1,"date",date1, JSON.stringify(doc), function () {
                         console.log(doc);
                         callback(doc);
 
                     });
 
-                    redis.set(source, JSON.stringify(doc), function () {
-                        console.log(doc);
-                        callback(doc);
-
-                    });
-                }
-            });
+            }) 
         }
     });
 };
 
-
-
-
-app.post('/search2', function (req, res) {
+app.post('/searchFlightsWithCaching', function (req, res) {
     
-     var source = req.body.source;
-     var destination = req.body.destination;
-     console.log(destination);
-     findflightsCached(db, redis, source,destination, function (book) {
+     var source1 = req.body.source;
+     var destination1 = req.body.destination;
+     var date1= req.body.date;
+     console.log(destination1);
+     findflightsCached(db, redis, source1,destination1,date1, function (book) {
              
              res.status(200).send(book);
+         });
+     
+ });
+
+
+//Api and function for searching hotels according to roomtype and hoteladdress with redis caching
+   findhotelsCached = function (db, redis, roomtype1,hoteladdress1, callback) {
+    redis.hgetall("hotelsearchdata", function (err, reply) {
+       if (reply) 
+        callback(JSON.parse(reply));
+        else {
+                db.collection('hotels').find({
+                "roomtype": roomtype1,
+                "hoteladdress" : hoteladdress1
+            }).toArray(function (err, doc) {
+                
+                    redis.hmset("hotelsearchdata","roomtype",roomtype1,"hoteladdress",hoteladdress1, JSON.stringify(doc), function () {
+                        console.log(doc);
+                        callback(doc);
+
+                    });
+
+            }) 
+        }
+    });
+};
+
+app.post('/searchHotelsWithCaching', function (req, res) {
+    
+     var roomtype1 = req.body.roomtype;
+     var hoteladdress1 = req.body.hoteladdress;
+    
+     findhotelsCached(db, redis, roomtype1,hoteladdress1, function (hotelnames) {
+             
+             res.status(200).send(hotelnames);
          });
      
  });
@@ -164,163 +133,233 @@ app.post('/search2', function (req, res) {
 
 
 
+//Api and function for searching flights according to airlines,source, destination for a particular date with redis caching
+   flightsDetailsCached = function (db, redis, source1,destination1,date1,flightname1, callback) {
+    redis.hgetall("data1", function (err, reply) {
+       if (reply)
+        callback(JSON.parse(reply));
+        else {
+            
+            db.collection('flightsData').findOne({
+                "source": source1,
+                "destination" : destination1,
+                "Date": date1,
+                "fligtName": flightname1
+            }, function (err, doc) {
+                if (err || !doc) callback(null);
+                else {
+                    redis.hmset("data1","source",source1,"destination",destination1,"date",date1,"flightname",flightname1, JSON.stringify(doc), function () {
+                        console.log(doc);
+                        callback(doc);
 
- app.post('/searchflights', (req, res) => {
-    
-   var destination= req.body.destination;
-    var date= req.body.date;
-    var source= req.body.source;
-    
-    console.log(req.body)
-    console.log(destination)
-    console.log(req.body.destination)
- /*
-    var flightdata = {
-        "destination":req.body.destination,
-        "Date":req.body.date, 
-        "source":req.body.source
-    };
+                    });
 
-=======
- app.post('/searchflights', (req, res) => {
-    
-   var destination= req.body.destination;
-    var date= req.body.date;
-    var source= req.body.source;
-    
-    console.log(req.body)
-    console.log(destination)
-    console.log(req.body.destination)
- /*
-    var flightdata = {
-        "destination":req.body.destination,
-        "Date":req.body.date, 
-        "source":req.body.source
-    };
-
->>>>>>> 8cd2dfa446e3e34c94bf33a7adb2f0ae09ee7550
- console.log(flightdata)
-*/
-   // db.collection('flightsData').find(flightdata).toArray(function(err,results){
-
-    db.collection('flightsData').find({"destination" : destination, "source" : source, "Date": date }).toArray(function(err, results) {
-         console.log(results);
-          
-       })
-   });
-
-
-   app.post('/searchhotels', (req, res) => {
-   
-    var roomtype= req.body.roomtype;
-   var hoteladdress= req.body.hoteladdress;
-    console.log(roomtype)
-    console.log(req.body)
-   
-    db.collection('hotels').find({"hoteladdress" : hoteladdress, "roomtype" : roomtype}).toArray(function(err, results) {
-        console.log(results);
-         
-      })
-  });
-
- 
-    
-
-   app.post('/user_cc_details',function(req,res){
-    
-        var cardnumber = req.body.cardnumber;
-       
-        console.log(req.body);
-    
+               }
+            });
+        }
     });
+};
 
-   app.post('/flightdetails', (req, res) => {
+
+app.post('/FlightsDetailsWithCaching', function (req, res) {
     
-    var destination= req.body.destination;
-    var date= req.body.date;
-    var source= req.body.source;
-    var flightname=req.body.flightname;
+     var source1 = req.body.source;
+     var destination1 = req.body.destination;
+     var date1= req.body.date;
+     var flightname1 = req.body.flightname;
+     console.log(destination1);
+     flightsDetailsCached(db, redis, source1,destination1,date1,flightname1, function (book) {
+             
+             res.status(200).send(book);
+     
+         var coll = db.collection('analytics');
+         var flightdata={
+             flightsource:book.source,
+             flightdestination:book.destination,
+           
+         };
+         coll.insert(flightdata,function(err,result){
+             if(err){
+                 console.log('error: '+err);
+             }
+             console.log('record inserted');
+             //result.code = "200";
+             //result.value = "Success insertion";
+             status=2;
+             console.log("Data inserted successfully");
+         });
+         res.json({staus:status});
+     
+              });
+            });
 
-     db.collection('flightsData').findOne({"destination":destination, "Date": date, "source": source, "fligtName": flightname},function(err, results) {
-         console.log(results)
-
-       })
-   })
+ //});
 
 
-   app.post('/hoteldetails', (req, res) => {
+
+ //Api and function for searching hotels according to address, roomtype and hotelname with redis caching
+ hotelsDetailsCached = function (db, redis, roomtype1,hoteladdress1,hotelname1, callback) {
+    redis.hgetall("hoteldata2", function (err, reply) {
+       if (reply)
+        callback(JSON.parse(reply));
+        else {
+            
+            db.collection('hotels').findOne({
+                "roomtype": roomtype1,
+                "hoteladdress" : hoteladdress1,
+                "hotelname": hotelname1
+            }, function (err, doc) {
+                if (err || !doc) callback(null);
+                else {
+                    redis.hmset("hoteldata2","roomtype",roomtype1,"hoteladdress",hoteladdress1,"hotelname",hotelname1, JSON.stringify(doc), function () {
+                        console.log(doc);
+                        callback(doc);
+
+                    });
+
+               }
+            });
+        }
+    });
+};
+
+app.post('/hotelsDetailsWithCaching', function (req, res) {
     
-    var roomtype= req.body.roomtype;
-    var hoteladdress= req.body.hoteladdress;
-    var hotelname=req.body.hotelname;
-
-     console.log(roomtype)
-     console.log(req.body)
-
-     db.collection('hotels').findOne({"hoteladdress" : hoteladdress, "roomtype" : roomtype, "hotelname": hotelname},function(err, results) {
-         console.log(results)
-
-       })
-   })
-
-
-
-   
-   app.post('/searchcar', (req, res) => {
+     var roomtype1 = req.body.roomtype;
+     var hoteladdress1 = req.body.hoteladdress;
+     var hotelname1= req.body.hotelname;
     
-    var cartype= req.body.cartype;
-    var pickupcity= req.body.pickupcity;
+     //console.log(destination1);
+     hotelsDetailsCached(db, redis, roomtype1,hoteladdress1,hotelname1, function (book) {
+             
+             res.status(200).send(book);
+             
+             var roomtype_analytics=book.roomtype
+             console.log(roomtype_analytics)
+
+var coll = db.collection('analytics');
+    var hoteldata={
+        hotelname:book.hotelname,
+        hoteladdress:book.hoteladdress,
+      
+    };
+    coll.insert(hoteldata,function(err,result){
+        if(err){
+            console.log('error: '+err);
+        }
+        console.log('record inserted');
+        //result.code = "200";
+        //result.value = "Success insertion";
+        status=2;
+        console.log("Data inserted successfully");
+    });
+    res.json({staus:status});
+
+         });
+     
+ });
+
+
+
+
+//Api and function for searching cars according to cartype and pickupcity with redis caching
+
+   findcarsCached = function (db, redis, cartype1,pickupcity1, callback) {
+    redis.hgetall("carsearchdata", function (err, reply) {
+       if (reply) 
+        callback(JSON.parse(reply));
+        else {
+                db.collection('cars').find({
+                "cartype": cartype1,
+                "pickupcity" : pickupcity1
+            }).toArray(function (err, doc) {
+                
+                    redis.hmset("carsearchdata","cartype",cartype1,"pickupcity",pickupcity1, JSON.stringify(doc), function () {
+                        console.log(doc);
+                        callback(doc);
+
+                    });
+
+            }) 
+        }
+    });
+};
+
+app.post('/searchCarsWithCaching', function (req, res) {
     
-     console.log(cartype)
-     console.log(req.body)
-
-     db.collection('cars').findOne({"pickupcity" : pickupcity, "cartype" : cartype},function(err, results) {
-         console.log(results)
-
-       })
-   })
-
-
-   
-   app.post('/cardetails', (req, res) => {
+     var cartype1 = req.body.cartype;
+     var pickupcity1 = req.body.pickupcity;
     
-    var cartype= req.body.cartype;
-    var pickupcity= req.body.pickupcity;
-    var carbrand=req.body.carbrand;
-     console.log(cartype)
-     console.log(req.body)
-
-     db.collection('cars').findOne({"pickupcity" : pickupcity, "cartype" : cartype, "carbrand": carbrand},function(err, results) {
-         console.log(results)
-
-       })
-   })
-
-   app.get('/detailstest', details, function(req,res){
-    db.collection('flightsData').findOne({"destination":"Boston", "Date": "2017-11-01", "source": "Phoenix", "fligtName": "Virgin America"},function(err, results) {
-        console.log( results)
-        res.send (results.toString())
-       /*
-        var rows=results;
-        var jsonString= JSON.stringfy(results);
-        res.send (jsonString) 
-        */ 
-    })
-   })
+     findcarsCached(db, redis, cartype1,pickupcity1, function (carnames) {
+             
+             res.status(200).send(carnames);
+         });
+     
+ });
 
 
-function details(req, res, next){
-   
-    console.log("results are:" + results)
 
-}
+   //Api and function for searching cars according to cartype, carbrand, pickupcity with redis caching
 
-  app.get('/details1', (req, res) => {
-      console.log("results are:" + results);
-  })
+   carsDetailsCached = function (db, redis, cartype1,pickupcity1,carbrand1, callback) {
+    redis.hgetall("cardata2", function (err, reply) {
+       if (reply)
+        callback(JSON.parse(reply));
+        else {
+            
+            db.collection('cars').findOne({
+                "cartype": cartype1,
+                "pickupcity" : pickupcity1,
+                "carbrand": carbrand1
+            }, function (err, doc) {
+                if (err || !doc) callback(null);
+                else {
+                    redis.hmset("cardata2","cartype",cartype1,"pickupcity",pickupcity1,"carbrand",carbrand1, JSON.stringify(doc), function () {
+                        console.log(doc);
+                        callback(doc);
 
+                    });
 
-   app.get('/userinfo',mysqldbservice.getUserInfo)
+               }
+            });
+        }
+    });
+};
+
+app.post('/carsDetailsWithCaching', function (req, res) {
+    
+     var cartype1 = req.body.cartype;
+     var pickupcity1 = req.body.pickupcity;
+     var carbrand1= req.body.carbrand;
+    
+    // console.log(destination1);
+     carsDetailsCached(db, redis, cartype1,pickupcity1,carbrand1, function (book1) {
+             
+             res.status(200).send(book1);
+       
+     
+         var coll = db.collection('analytics');
+         var cardata={
+             carbrand:book1.carbrand,
+             carcity:book1.pickupcity,
+           
+         };
+         coll.insert(cardata,function(err,result){
+             if(err){
+                 console.log('error: '+err);
+             }
+             console.log('record inserted');
+             //result.code = "200";
+             //result.value = "Success insertion";
+             status=2;
+             console.log("Data inserted successfully");
+         });
+         res.json({staus:status});
+     
+              });
+            });
+
+ //});
 
  
 //Amita's code
@@ -658,8 +697,6 @@ app.post('/hotelBookingDetails',urlencodedPraser,function(req,res){
 req.body.email + "','" + trip_id + "','" + req.body.hotel.hotelname + "','" + req.body.hotel.roomtype + "','" + req.body.hotel.hoteladdress + "','" + req.body.checkindate + "','" + req.body.checkoutdate + "','" +
 req.body.noofguests + "','" + req.body.hotelbaseprice + "','" + req.body.hoteltotalprice + "' ) ";
 
-
-
             console.log("Query is:" + saveUser);
             status = 0;
     
@@ -808,3 +845,14 @@ app.post('/getCarreceipt',urlencodedPraser,function(req,res){
     console.log("data:"+data)
     res.json({staus:status});
 });
+
+//This API will send list of all the flighs/cars/hotels that the user will search each time
+app.get('/analytics', (req, res) => {
+    db.collection('analytics').find().toArray(function(err, results) {
+        console.log(results)
+        //res.json({staus:status});
+        res.send(results)
+       
+       
+      })
+  })

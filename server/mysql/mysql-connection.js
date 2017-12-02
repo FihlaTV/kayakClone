@@ -17,9 +17,6 @@ function getConnection(){
     return connection;
 }
 
-<<<<<<< HEAD
-exports.getConnection=getConnection;
-=======
 
 function fetchData(callback,sqlQuery){
 
@@ -70,6 +67,5 @@ function putdata(callback,sqlQuery){
 exports.fetchData=fetchData;
 exports.putdata=putdata;
 
->>>>>>> 8cd2dfa446e3e34c94bf33a7adb2f0ae09ee7550
 
 
