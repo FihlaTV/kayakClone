@@ -11,6 +11,8 @@ var rn = require('random-number');
 var path = require('path');
 var routes = require('./routes');
 var session = require('client-sessions');
+var hotels = require('./javascript/hotels');
+var flights = require('./javascript/flights');
 
 var app = express();
 app.use(express.static(path.join(__dirname, 'public')));
@@ -52,11 +54,12 @@ MongoClient.connect(
 );
 
 //FLIGHT APIs
-// app.get('/', (req, res) => {
-//   res.sendfile(__dirname + '/index.html');
-// });
 
+//nidhi apis
 app.get('/', routes.index);
+app.get('/account', routes.account);
+app.post('/hotelSearch', hotels.hotelSearch);
+app.post('/flightSearch', flights.flightSearch);
 
 app.get('/list', (req, res) => {
   // var cursor = db.collection('quotes').find()
