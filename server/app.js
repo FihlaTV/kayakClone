@@ -14,6 +14,8 @@ var session = require('client-sessions');
 var hotels = require('./javascript/hotels');
 var flights = require('./javascript/flights');
 var cars = require('./javascript/cars');
+var redisClient = require('redis').createClient;
+var redis = redisClient(6379, 'localhost');
 
 var app = express();
 app.use(express.static(path.join(__dirname, 'public')));
@@ -68,28 +70,6 @@ app.get('/list', (req, res) => {
   db
     .collection('flightsData')
     .find()
-    .toArray(function(err, results) {
-      console.log(results);
-      // send HTML file populated with quotes here
-    });
-});
-
-app.get('/search', (req, res) => {
-  // var cursor = db.collection('quotes').find()
-  db
-    .collection('flightsData')
-    .find({ destination: 'Boston', Date: '2017-11-01', source: 'Phoenix' })
-    .toArray(function(err, results) {
-      console.log(results);
-      // send HTML file populated with quotes here
-    });
-});
-
-app.get('/search', (req, res) => {
-  // var cursor = db.collection('quotes').find()
-  db
-    .collection('flightsData')
-    .find({ destination: 'Boston', Date: '2017-11-01', source: 'Phoenix' })
     .toArray(function(err, results) {
       console.log(results);
       // send HTML file populated with quotes here
@@ -215,6 +195,104 @@ app.post('/updateUserAccount', urlencodedPraser, function(req, res) {
     }
   }, updateUser);
   res.json({ staus: status });
+});
+
+findflightsCached = function(
+  db,
+  redis,
+  source1,
+  destination1,
+  date1,
+  callback
+) {
+  redis.hgetall('data', function(err, reply) {
+    if (reply) callback(JSON.parse(reply));
+    else {
+      db
+        .collection('flightsData')
+        .find({
+          source: source1,
+          destination: destination1,
+          Date: date1
+        })
+        .toArray(function(err, doc) {
+          redis.hmset(
+            'data',
+            'source',
+            source1,
+            'destination',
+            destination1,
+            'date',
+            date1,
+            JSON.stringify(doc),
+            function() {
+              console.log(doc);
+              callback(doc);
+            }
+          );
+        });
+    }
+  });
+};
+
+app.post('/searchFlightsWithCaching', function(req, res) {
+  var source1 = req.body.source;
+  var destination1 = req.body.destination;
+  var date1 = req.body.date;
+  console.log(destination1);
+  findflightsCached(db, redis, source1, destination1, date1, function(book) {
+    res.status(200).send(book);
+  });
+});
+
+///////
+
+findflightsCached = function(
+  db,
+  redis,
+  source1,
+  destination1,
+  date1,
+  callback
+) {
+  redis.hgetall('data', function(err, reply) {
+    if (reply) callback(JSON.parse(reply));
+    else {
+      db
+        .collection('flightsData')
+        .find({
+          source: source1,
+          destination: destination1,
+          Date: date1
+        })
+        .toArray(function(err, doc) {
+          redis.hmset(
+            'data',
+            'source',
+            source1,
+            'destination',
+            destination1,
+            'date',
+            date1,
+            JSON.stringify(doc),
+            function() {
+              console.log(doc);
+              callback(doc);
+            }
+          );
+        });
+    }
+  });
+};
+
+app.post('/searchFlightsWithCaching', function(req, res) {
+  var source1 = req.body.source;
+  var destination1 = req.body.destination;
+  var date1 = req.body.date;
+  console.log(destination1);
+  findflightsCached(db, redis, source1, destination1, date1, function(book) {
+    res.status(200).send(book);
+  });
 });
 
 //add new user - signup
