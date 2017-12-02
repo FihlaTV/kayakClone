@@ -14,6 +14,7 @@ var session = require('client-sessions');
 var hotels = require('./javascript/hotels');
 var flights = require('./javascript/flights');
 var cars = require('./javascript/cars');
+var loginRegister = require('./javascript/login-register');
 var redisClient = require('redis').createClient;
 var redis = redisClient(6379, 'localhost');
 
@@ -34,7 +35,7 @@ app.use(function(req, res, next) {
 app.use(
   session({
     cookieName: 'session',
-    secret: 'cmpe273',
+    secret: 'cmpe273kayak',
     duration: 30 * 60 * 1000,
     activeDuration: 5 * 60 * 1000
   })
@@ -64,6 +65,7 @@ app.get('/account', routes.account);
 app.post('/hotelSearch', hotels.hotelSearch);
 app.post('/flightSearch', flights.flightSearch);
 app.post('/carSearch', cars.carSearch);
+app.post('/login', loginRegister.login);
 
 app.get('/list', (req, res) => {
   // var cursor = db.collection('quotes').find()

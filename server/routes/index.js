@@ -7,5 +7,10 @@ exports.index = function(req, res) {
 };
 
 exports.account = function(req, res) {
-  res.render('user-profile');
+  //
+  if (req.session.email) {
+    res.render('user-profile');
+  } else {
+    res.render('login-register');
+  }
 };
