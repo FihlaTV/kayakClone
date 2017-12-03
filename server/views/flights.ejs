@@ -21,11 +21,14 @@
     <link rel="stylesheet" href="/stylesheets/styles.css">
     <link rel="stylesheet" href="/stylesheets/mystyles.css">
     <script src="js/modernizr.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
+    <script src="/angularjs/flights.js"></script>
+
 
 
 </head>
 
-<body>
+<body ng-model="flights" ng-controller="flights">
 
 
     <div class="global-wrap">
@@ -351,7 +354,7 @@
                     <button class="btn btn-primary btn-lg" type="submit">Search for Flights</button>
                 </form>
             </div>
-            <h3 class="booking-title">12 Flights found <small><a class="popup-text" href="#search-dialog" data-effect="mfp-zoom-out">Change search</a></small></h3>
+            <h3 class="booking-title">{{numberOfFlights}} Flights found <small><a class="popup-text" href="#search-dialog" data-effect="mfp-zoom-out">Change search</a></small></h3>
             <div class="row">
                 <div class="col-md-3">
                     <aside class="booking-filters text-white">
@@ -465,14 +468,14 @@
                         </ul>
                     </div>
                     <ul class="booking-list">
-                        <li>
+                        <li ng-repeat="flights in flightList track by $index">
                             <div class="booking-item-container">
                                 <div class="booking-item">
                                     <div class="row">
                                         <div class="col-md-2">
                                             <div class="booking-item-airline-logo">
-                                                <img src="img/croatia.jpg" alt="Image Alternative text" title="Image Title" />
-                                                <p>Croatia Airlines</p>
+                                                <img src={{flights.image}} alt="Image Alternative text" title="Image Title" />
+                                                <p>{{flights.flightName}} Airlines</p>
                                             </div>
                                         </div>
                                         <div class="col-md-5">

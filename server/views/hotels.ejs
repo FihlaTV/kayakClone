@@ -27,7 +27,7 @@
 
 </head>
 
-<body ng-app="hotels" ng-controller="hotels" ng-init="loadHotels();">
+<body ng-app="hotels" ng-controller="hotels">
 
   <div class="global-wrap">
     <header id="main-header">
@@ -174,7 +174,7 @@
                             <button class="btn btn-primary btn-lg" type="submit">Search for Hotels</button>
                           </form>
                         </div>
-                        <h3 class="booking-title">{{numberOfHotels}} hotels found <small><a class="popup-text" href="#search-dialog" data-effect="mfp-zoom-out">Change search</a></small></h3>
+                        <h3 class="booking-title"><%=data.length %> hotels found <small><a class="popup-text" href="#search-dialog" data-effect="mfp-zoom-out">Change search</a></small></h3>
                         <div class="row">
                           <div class="col-md-3">
                             <aside class="booking-filters text-white">
@@ -355,7 +355,7 @@
                                                                                                       </li>
                                                                                                     </ul>
                                                                                                   </div>
-                                                                                                  <ul class="booking-list">
+                                                                                                  <!-- <ul class="booking-list">
                                                                                                     <li ng-repeat="hotels in hotelList track by $index">
                                                                                                       <a class="booking-item" href="#">
                                                                                                         <div class="row">
@@ -388,35 +388,66 @@
                                                                                                         </div>
                                                                                                       </a>
                                                                                                     </li>
+                                                                                                  </ul> -->
+                                                                                                  <ul class="booking-list">
+                                                                                                    <li>
+                                                                                                      <% for(var i=0; i <data.length; i++) {%>
+                                                                                                        <a class="booking-item" href="#">
+                                                                                                          <div class="row">
+                                                                                                            <div class="col-md-3">
+                                                                                                              <div class="booking-item-img-wrap">
+                                                                                                                <img src="<%=data[i].image%>" alt="Image Alternative text" title="LHOTEL PORTO BAY SAO PAULO suite lhotel living room" />
+                                                                                                                <div class="booking-item-img-num"><i class="fa fa-picture-o"></i>29</div>
+                                                                                                              </div>
+                                                                                                            </div>
+                                                                                                            <div class="col-md-6">
+                                                                                                              <div class="booking-item-rating">
+                                                                                                                <ul class="icon-group booking-item-rating-stars">
+                                                                                                                  <% for(var j=0; j < data[i].stars; j++) {%>
+                                                                                                                  <li>
+                                                                                                                    <i class="fa fa-star"></i>
+                                                                                                                  </li>
+                                                                                                                  <%}%>
+                                                                                                                  <% for(var z=0; z < 5 - data[i].stars; z++) {%>
+                                                                                                                  <li>
+                                                                                                                    <i class="fa fa-star-o"></i>
+                                                                                                                  </li>
+                                                                                                                  <%}%>
+
+                                                                                                                  <!-- <li><i class="fa fa-star"></i>
+                                                                                                                  </li>
+                                                                                                                  <li><i class="fa fa-star"></i>
+                                                                                                                  </li>
+                                                                                                                  <li><i class="fa fa-star"></i>
+                                                                                                                  </li>
+                                                                                                                  <li><i class="fa fa-star-half-empty"></i>
+                                                                                                                  </li> -->
+                                                                                                                </ul><span class="booking-item-rating-number"><b ><%= data[i].stars %></b> of 5</span><small>(<%= data[i].reviews %> reviews)</small>
+                                                                                                              </div>
+                                                                                                              <h5 class="booking-item-title" ng-model="title" id="title"><%= data[i].hotelName %></h5>
+                                                                                                              <p class="booking-item-address" ng-model="location" id="location"><i class="fa fa-map-marker"></i> <%= data[i].city %></p>
+                                                                                                            </div>
+                                                                                                            <div class="col-md-3"><span class="booking-item-price-from">from</span><span class="booking-item-price" ng-model="price" id="price">$<%= data[i].price %></span><span>/night</span><span class="btn btn-primary" ng-click="bookHotel($index)">Book Now {{$index}}</span>
+                                                                                                            </div>
+                                                                                                          </div>
+                                                                                                        </a>
+                                                                                                      <%}%>
+
+                                                                                                    </li>
                                                                                                   </ul>
                                                                                                   <div class="row">
                                                                                                     <div class="col-md-6">
-                                                                                                      <p><small>{{numberOfHotels}} hotels found in {{hotelList[0].location}}. &nbsp;&nbsp;Showing 1 – 15</small>
+                                                                                                      <p><small><%= data.length %> hotels found in <%= data[0].city %>. &nbsp;&nbsp;Showing 1 – <%= data.length %></small>
                                                                                                       </p>
                                                                                                       <ul class="pagination">
                                                                                                         <li class="active"><a href="#">1</a>
                                                                                                         </li>
-                                                                                                        <li><a href="#">2</a>
-                                                                                                        </li>
-                                                                                                        <li><a href="#">3</a>
-                                                                                                        </li>
-                                                                                                        <li><a href="#">4</a>
-                                                                                                        </li>
-                                                                                                        <li><a href="#">5</a>
-                                                                                                        </li>
-                                                                                                        <li><a href="#">6</a>
-                                                                                                        </li>
-                                                                                                        <li><a href="#">7</a>
-                                                                                                        </li>
-                                                                                                        <li class="dots">...</li>
-                                                                                                        <li><a href="#">43</a>
-                                                                                                        </li>
-                                                                                                        <li class="next"><a href="#">Next Page</a>
+                                                                                                        <li class="next"><a href="#">Last</a>
                                                                                                         </li>
                                                                                                       </ul>
                                                                                                     </div>
                                                                                                     <div class="col-md-6 text-right">
-                                                                                                      <p>Not what you're looking for? <a class="popup-text" href="#search-dialog" data-effect="mfp-zoom-out">Try your search again</a>
+                                                                                                      <p>Not what you're looking for? <a class="popup-text" href="http://localhost:3001/" data-effect="mfp-zoom-out">Try your search again</a>
                                                                                                       </p>
                                                                                                     </div>
                                                                                                   </div>

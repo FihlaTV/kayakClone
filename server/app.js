@@ -63,7 +63,7 @@ MongoClient.connect(
 //nidhi apis
 app.get('/', routes.index);
 app.get('/account', routes.account);
-app.post('/hotelSearch', hotels.hotelSearch);
+// app.post('/hotelSearch', hotels.hotelSearch);
 app.post('/flightSearch', flights.flightSearch);
 app.post('/carSearch', cars.carSearch);
 app.post('/login', loginRegister.login);
@@ -92,6 +92,52 @@ app.get('/details', (req, res) => {
   }, function(err, results) {
     console.log(results);
     console.log(results._id);
+  });
+});
+
+//vishnu gave a test api to check hotelsearch
+//Api and function for searching hotels according to date and city with redis caching
+//NOTE : This data is NOT sent for analytics
+app.post('/searchHotelsWithCaching', function(req, res) {
+  //var roomType1 = req.body.roomType;
+  var city = req.body.location.split(',')[0];
+  var date1 = req.body.start;
+  console.log(city);
+  console.log(date1);
+
+  findhotelsCached = function(db, redis, city, date1, callback) {
+    redis.hgetall('hotelsearchdata', function(err, reply) {
+      if (reply) callback(JSON.parse(reply));
+      else {
+        db
+          .collection('hotelsData')
+          .find({
+            //"roomType": roomType1,
+            city: city,
+            date: date1
+          })
+          .toArray(function(err, doc) {
+            redis.hmset(
+              'hotelsearchdata',
+              'city',
+              city,
+              'date',
+              date1,
+              JSON.stringify(doc),
+              function() {
+                console.log(doc);
+                callback(doc);
+              }
+            );
+          });
+      }
+    });
+  };
+
+  findhotelsCached(db, redis, city, date1, function(hotelnames) {
+    console.log(hotelnames);
+    res.status(200).render('hotels', { data: hotelnames });
+    // res.status(200).send(hotelnames);
   });
 });
 
