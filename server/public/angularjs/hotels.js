@@ -4,7 +4,18 @@ hotels.controller('hotels', function($scope, $http) {
   console.log('in hotels angular');
   $scope.loadHotels = function() {
     console.log('in angular load hotels');
-
+    $http({
+      method: 'POST',
+      url: '/bookHotel',
+      data: $scope.hotelList[index]
+    })
+      .success(function(data) {
+        console.log(data);
+        window.location.assign('/hotelPayment');
+      })
+      .error(function(error) {
+        alert('error');
+      });
     //api or db
     $scope.hotelList = [
       {

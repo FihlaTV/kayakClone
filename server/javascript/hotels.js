@@ -4,7 +4,7 @@ exports.hotelSearch = function(req, res) {
 
   var fullLocation = req.body.location;
   var location = fullLocation.split(',')[0];
-  console.log(location);
+
   res.render('hotels');
 };
 
