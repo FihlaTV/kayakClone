@@ -14,3 +14,7 @@ exports.account = function(req, res) {
     res.render('login-register');
   }
 };
+
+exports.hotelPayment = function(req, res) {
+  res.render('hotel-payment');
+};

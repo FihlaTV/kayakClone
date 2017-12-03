@@ -21,11 +21,13 @@
     <link rel="stylesheet" href="/stylesheets/styles.css">
     <link rel="stylesheet" href="/stylesheets/mystyles.css">
     <script src="js/modernizr.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
+    <script src="/angularjs/hotel-payments.js"></script>
 
 
 </head>
 
-<body>
+<body ng-app="hotelPayments" ng-controller="hotelPayments" ng-init="loadHotel();">
 
 
     <div class="global-wrap">
@@ -189,7 +191,7 @@
                                 </li>
                             </ul>
                         </li>
-    
+
                     </ul>
                 </div>
             </div>
@@ -271,11 +273,11 @@
                             </li>
                             <li>
                                 <h5>Room</h5>
-                                <p class="booking-item-payment-item-title">Club LVL Water View Dbl/Dbl Premier Room</p>
+                                <p class="booking-item-payment-item-title" ng-model="loadedHotels.title">{{loadedHotels.title}}</p>
                                 <ul class="booking-item-payment-price">
                                     <li>
                                         <p class="booking-item-payment-price-title">7 Nights</p>
-                                        <p class="booking-item-payment-price-amount">$150<small>/per day</small>
+                                        <p class="booking-item-payment-price-amount">${{loadedHotels.price}}<small>/per day</small>
                                         </p>
                                     </li>
                                     <li>

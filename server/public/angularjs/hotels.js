@@ -2,7 +2,6 @@ var hotels = angular.module('hotels', []);
 // defining the login controller
 hotels.controller('hotels', function($scope, $http) {
   console.log('in hotels angular');
-
   $scope.loadHotels = function() {
     console.log('in angular load hotels');
 
@@ -26,5 +25,21 @@ hotels.controller('hotels', function($scope, $http) {
 
     //on success of api
     $scope.numberOfHotels = $scope.hotelList.length;
+  };
+
+  $scope.bookHotel = function(index) {
+    console.log($scope.hotelList[index]);
+    $http({
+      method: 'POST',
+      url: '/bookHotel',
+      data: $scope.hotelList[index]
+    })
+      .success(function(data) {
+        console.log(data);
+        window.location.assign('/hotelPayment');
+      })
+      .error(function(error) {
+        alert('error');
+      });
   };
 });

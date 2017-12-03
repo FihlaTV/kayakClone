@@ -7,3 +7,10 @@ exports.hotelSearch = function(req, res) {
   console.log(location);
   res.render('hotels');
 };
+
+exports.bookHotel = function(req, res) {
+  console.log(req.body);
+  req.session.hotel = req.body;
+  var json_response = { status: 200 };
+  res.send(json_response);
+};

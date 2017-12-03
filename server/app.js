@@ -14,6 +14,7 @@ var session = require('client-sessions');
 var hotels = require('./javascript/hotels');
 var flights = require('./javascript/flights');
 var cars = require('./javascript/cars');
+var payment = require('./javascript/hotel-payment');
 var loginRegister = require('./javascript/login-register');
 var redisClient = require('redis').createClient;
 var redis = redisClient(6379, 'localhost');
@@ -66,6 +67,9 @@ app.post('/hotelSearch', hotels.hotelSearch);
 app.post('/flightSearch', flights.flightSearch);
 app.post('/carSearch', cars.carSearch);
 app.post('/login', loginRegister.login);
+app.post('/bookHotel', hotels.bookHotel);
+app.get('/hotelPayment', routes.hotelPayment);
+app.post('/loadBookHotel', payment.loadBookHotel);
 
 app.get('/list', (req, res) => {
   // var cursor = db.collection('quotes').find()

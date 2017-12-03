@@ -487,7 +487,7 @@
                         </ul>
                     </div>
                     <ul class="booking-list">
-                        <li ng-repeat="hotels in hotelList">
+                        <li ng-repeat="hotels in hotelList track by $index">
                             <a class="booking-item" href="#">
                                 <div class="row">
                                     <div class="col-md-3">
@@ -511,10 +511,10 @@
                                                 </li>
                                             </ul><span class="booking-item-rating-number"><b >{{hotels.ratingNumber}}</b> of 5</span><small>({{hotels.reviews}} reviews)</small>
                                         </div>
-                                        <h5 class="booking-item-title">{{hotels.title}}</h5>
-                                        <p class="booking-item-address"><i class="fa fa-map-marker"></i> {{hotels.location}}</p><small class="booking-item-last-booked">Latest booking: 1 hour ago</small>
+                                        <h5 class="booking-item-title" ng-model="title" id="title">{{hotels.title}}</h5>
+                                        <p class="booking-item-address" ng-model="location" id="location"><i class="fa fa-map-marker"></i> {{hotels.location}}</p><small class="booking-item-last-booked">Latest booking: 1 hour ago</small>
                                     </div>
-                                    <div class="col-md-3"><span class="booking-item-price-from">from</span><span class="booking-item-price">${{hotels.price}}</span><span>/night</span><span class="btn btn-primary">Book Now</span>
+                                    <div class="col-md-3"><span class="booking-item-price-from">from</span><span class="booking-item-price" ng-model="price" id="price">${{hotels.price}}</span><span>/night</span><span class="btn btn-primary" ng-click="bookHotel($index)">Book Now {{$index}}</span>
                                     </div>
                                 </div>
                             </a>
