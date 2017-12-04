@@ -155,8 +155,8 @@
                             <h2 class="lh1em mt40">Exeptional!</h2>
                             <h3>97% <small >of guests recommend</small></h3>
                             <div class="booking-item-rating">
-                                <ul class="icon-list icon-group booking-item-rating-stars">
-                                    <li ng-repeat="i in getStars(loadHotelDetails.stars)"><i class="fa fa-star"></i>
+                                <ul class="icon-list icon-group booking-item-rating-stars" ng-repeat="i in getStars(loadHotelDetails.stars)">
+                                    <li><i class="fa fa-star"></i>
                                     </li>
                                 </ul><span class="booking-item-rating-number"><b >{{loadHotelDetails.stars}}</b> of 5 <small class="text-smaller">guest rating</small></span>
                                 <p><a class="text-default" href="#">based on {{loadHotelDetails.reviews}} reviews</a>

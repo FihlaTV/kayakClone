@@ -21,7 +21,12 @@ hotels.controller('hotels', function($scope, $http) {
       });
   };
   $scope.getStars = function(stars) {
-    return new Array(stars);
+    var arr = [];
+    for (var z = 0; z < stars; z++) {
+      arr.push(z);
+    }
+    // return new Array(stars);
+    return arr;
   };
 
   $scope.loadHotelDetails = function() {
