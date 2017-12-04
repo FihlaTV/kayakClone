@@ -71,7 +71,7 @@ app.post('/bookHotel', hotels.bookHotel);
 app.get('/hotelPayment', routes.hotelPayment);
 app.post('/loadBookHotel', payment.loadBookHotel);
 app.get('/hotelDetails', routes.hotelDetails);
-app.post('/hotelDetails', hotels.hotelDetails);
+// app.post('/hotelDetails', hotels.hotelDetails);
 app.post('/loadHotelDetails', hotels.loadHotelDetails);
 app.post('/bookHotelFinal', hotels.bookHotelFinal);
 app.post('/loadFinalBookingHotel', payment.loadFinalBookingHotel);
@@ -144,6 +144,258 @@ app.post('/searchHotelsWithCaching', function(req, res) {
     console.log(hotelnames);
     res.status(200).render('hotels', { data: hotelnames });
     // res.status(200).send(hotelnames);
+  });
+});
+
+app.post('/flights', (req, res) => {
+  console.log(req.body);
+  var passenger = 2;
+
+  var source = req.body.fromPlaceRound.split(',')[0];
+  var destination = req.body.toPlaceRound.split(',')[0];
+  var startDate = req.body.start[0];
+  var returnDate = req.body.end;
+  var noOfPass = passenger;
+
+  var totalAmount = 0;
+  console.log(source);
+  console.log(destination);
+  console.log(startDate);
+  console.log(returnDate);
+
+  var data = {
+    OneWay: {},
+    ReturnWay: {}
+  };
+  search = {
+    source: source,
+    destination: destination,
+    date: startDate
+  };
+  var flightsData = [];
+
+  db
+    .collection('flightsData')
+    .find(search)
+    .toArray(function(err, doc) {
+      data.To = doc;
+      console.log('To:' + data.To);
+
+      if (returnDate === 'none') {
+        //console.log("data.To.length"+data.To.length);
+        for (var i = 0; i < data.To.length; i++) {
+          data.To[i].amount =
+            parseInt(data.To[i].costFlight) * parseInt(noOfPass);
+          console.log(data.To[i].amount);
+          flightsData.push({ OneWay: data.To[i], noOfPassengers: noOfPass });
+        }
+        res.status(200).json({ flightdata: flightsData });
+      } else {
+        search = {
+          source: destination,
+          destination: source,
+          date: returnDate
+        };
+        db
+          .collection('flightsData')
+          .find(search)
+          .toArray(function(err, doc) {
+            data.From = doc;
+            console.log('From:' + data.From);
+            for (var i = 0; i < data.To.length; i++) {
+              data.To[i].amount =
+                parseInt(data.To[i].costFlight) * parseInt(noOfPass);
+              data.From[i].amount =
+                parseInt(data.From[i].costFlight) * parseInt(noOfPass);
+              totalAmount = data.To[i].amount + data.From[i].amount;
+              flightsData.push({
+                OneWay: data.To[i],
+                ReturnWay: data.From[i],
+                totalAmount: totalAmount,
+                noOfPassengers: noOfPass
+              });
+            }
+            console.log(flightsData);
+            res.status(200).render('flights', { data: flightsData });
+          });
+      }
+    });
+});
+
+app.post('/cars', function(req, res) {
+  console.log(req.body);
+  var carsData = [];
+  var pickupdate = req.body.start;
+  var dropoffdate = req.body.end;
+
+  var noOfDays1 = pickupdate.split(',')[0].split(' ')[1];
+  var noOfDays2 = dropoffdate.split(',')[0].split(' ')[1];
+
+  var totalDays = noOfDays2 - noOfDays1;
+
+  var location = req.body.pickUp.split(',')[0];
+  //var date = req.body.date;
+
+  findcarsCached = function(db, redis, location, date, callback) {
+    redis.hgetall('carsearchdata', function(err, reply) {
+      if (reply) {
+        callback(JSON.parse(reply));
+        console.log('i m in redis');
+      } else {
+        db
+          .collection('carsData')
+          .find({
+            location: location,
+            date: pickupdate
+          })
+          .toArray(function(err, doc) {
+            var data = doc;
+            for (var i = 0; i < data.length; i++) {
+              data[i].amount = parseInt(data[i].price) * parseInt(totalDays);
+              console.log(data[i].amount);
+              carsData.push({ Cars: data[i], noOfDays: totalDays });
+            }
+            redis.hmset(
+              'carsearchdata',
+              'location',
+              location,
+              'date',
+              date,
+              JSON.stringify(carsData),
+              function() {
+                console.log(carsData);
+                callback(carsData);
+              }
+            );
+          });
+      }
+    });
+  };
+
+  findcarsCached(db, redis, location, pickupdate, function(carsData) {
+    console.log(carsData);
+    // res.status(200).send(carsData);
+    res.status(200).render('cars', { data: carsData });
+  });
+});
+
+//vishnu sent new api email
+
+app.post('/hotels', function(req, res) {
+  var hotelsData = [];
+  console.log(req.body);
+  //var roomType1 = req.body.roomType;
+  var city = req.body.location.split(',')[0];
+  var checkindate = req.body.start;
+  var checkoutdate = req.body.end;
+
+  var noOfDays1 = checkindate.split(',')[0].split(' ')[1];
+  var noOfDays2 = checkoutdate.split(',')[0].split(' ')[1];
+  var totalDays = noOfDays2 - noOfDays1;
+
+  console.log('numbers of days stay ' + totalDays);
+
+  findhotelsCached = function(db, redis, city, checkindate, callback) {
+    redis.hgetall('hotelsearchdata', function(err, reply) {
+      if (reply) {
+        console.log('i m redis');
+
+        callback(JSON.parse(reply));
+      } else {
+        db
+          .collection('hotelsData')
+          .find({
+            //"roomType": roomType1,
+            city: city,
+            date: checkindate
+          })
+          .toArray(function(err, doc) {
+            var data = doc;
+            for (var i = 0; i < data.length; i++) {
+              data[i].amount = parseInt(data[i].price) * parseInt(totalDays);
+              console.log(data[i].amount);
+              hotelsData.push({ Hotels: data[i], noOfDays: totalDays });
+            }
+            redis.hmset(
+              'hotelsearchdata',
+              'city',
+              city,
+              'date',
+              checkindate,
+              JSON.stringify(hotelsData),
+              function() {
+                // console.log(doc);
+                callback(hotelsData);
+              }
+            );
+          });
+      }
+    });
+  };
+
+  findhotelsCached(db, redis, city, checkindate, function(hotelsData) {
+    console.log(hotelsData);
+    res.status(200).render('hotels', { data: hotelsData });
+  });
+});
+
+app.post('/hotelsDetails', function(req, res) {
+  var hotelName = req.body.hotelName;
+  var city = req.body.city;
+  //var roomType = req.body.roomType;
+  var date = req.body.date;
+
+  //console.log(destination1);
+  hotelsDetailsCached = function(db, redis, city, hotelName, date, callback) {
+    redis.hgetall('hoteldata2', function(err, reply) {
+      if (reply) callback(JSON.parse(reply));
+      else {
+        db.collection('hotelsData').findOne({
+          // "roomType": roomType,
+          city: city,
+          hotelName: hotelName,
+          date: date
+        }, function(err, doc) {
+          if (err || !doc) callback(null);
+          else {
+            redis.hmset(
+              'hoteldata2',
+              'city',
+              city,
+              'hotelName',
+              hotelName,
+              'date',
+              date,
+              JSON.stringify(doc),
+              function() {
+                console.log(doc);
+                callback(doc);
+              }
+            );
+          }
+        });
+      }
+    });
+  };
+  hotelsDetailsCached(db, redis, city, hotelName, date, function(book) {
+    // res.status(200).send(book);
+
+    // Data Pushed toanalytics Db
+    var coll = db.collection('analytics');
+    var hoteldata = {
+      hotelname: book.hotelName,
+      hotelcity: book.city
+    };
+    coll.insert(hoteldata, function(err, result) {
+      if (err) {
+        console.log('error: ' + err);
+      } else {
+        console.log('Hotel record inserted into Analytics Db');
+        status = 2;
+      }
+    });
+    res.send(200);
+    //res.json({staus:status});
   });
 });
 

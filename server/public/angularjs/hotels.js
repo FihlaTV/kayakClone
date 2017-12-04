@@ -10,7 +10,7 @@ hotels.controller('hotels', function($scope, $http) {
     // window.location.assign('/hotelDetails');
     $http({
       method: 'POST',
-      url: '/hotelDetails',
+      url: '/hotelsDetails',
       data: oneHotel
     })
       .success(function(data) {

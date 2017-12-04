@@ -19,6 +19,10 @@ body {
   height: 40px;
 }
 
+.flightButtons {
+  margin-top: 95px;
+}
+
 article,
 aside,
 details,
