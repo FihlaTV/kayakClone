@@ -78,6 +78,7 @@ app.post('/bookFlight', flights.loadFlightDetails);
 app.post('/bookHotelFinal', hotels.bookHotelFinal);
 app.post('/loadFinalBookingHotel', payment.loadFinalBookingHotel);
 app.post('/hotelsPaymentDetails', payment.hotelsPaymentDetails);
+app.get('/flightPayment', routes.flightPayment);
 
 app.get('/list', (req, res) => {
   // var cursor = db.collection('quotes').find()
@@ -476,6 +477,7 @@ app.post('/flights', (req, res) => {
 app.post('/flightsDetails', (req, res) => {
   console.log('in  flightDetails vishnu');
   console.log(req.body);
+  req.session.oneFlightObj = req.body;
 
   // var dataToSendBack = req.body;
   // var hotelName = req.body.hotelName;
@@ -488,8 +490,8 @@ app.post('/flightsDetails', (req, res) => {
   // console.log(req.session.hotelDetailsObj);
 
   // console.log(req.body);
-  var id1 = req.body.id1;
-  var id2 = req.body.id2;
+  var id1 = req.body.OneWay._id;
+  var id2 = req.body.ReturnWay._id;
   search = {
     _id: { $in: [ObjectId(id1), ObjectId(id2)] }
   };
@@ -515,7 +517,16 @@ app.post('/flightsDetails', (req, res) => {
         });
 
 */
-      res.send(200);
+      if (req.session.email != undefined && req.session.email != null) {
+        res.send({
+          status: 'session'
+        });
+      } else {
+        res.send({
+          status: 'noSession'
+        });
+      }
+      // res.send(200);
     });
 });
 

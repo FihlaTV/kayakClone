@@ -28,7 +28,7 @@
 
 </head>
 
-<body ng-model="flights" ng-controller="flights">
+<body ng-app="flights" ng-controller="flights">
 
 
     <div class="global-wrap">
@@ -424,13 +424,13 @@
                                           </hr>
                                             <h5 class="list-title"><%= data[i].ReturnWay.source %> to <%= data[i].ReturnWay.destination %> </h5>
                                             <ul class="list">
-                                                <li><%= data[i].ReturnWay.filghtName %></li>
+                                                <li><%= data[i].ReturnWay.flightName %></li>
                                                 <li>Economy / Coach Class ( M)</li>
                                                 <li>Depart <%= data[i].ReturnWay.time %>:00 - Duration <%= data[i].ReturnWay.duration %> hours</li>
                                             </ul>
 
                                             <div class="col-md-4 pull-right">
-                                              <span class="btn btn-primary" ng-click="saveFlightDetails()">Book now</span>
+                                              <span class="btn btn-primary" ng-click="saveFlightDetails(<%= JSON.stringify(data[i]) %>)">Book now</span>
                                               <!-- <button class="btn btn-primary" type="submit">Book Now</button> -->
                                             </div>
 

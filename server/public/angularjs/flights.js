@@ -31,17 +31,21 @@ flights.controller('flights', function($scope, $http) {
       });
   };
 
-  $scope.saveFlightDetails = function(flightObj) {
+  $scope.saveFlightDetails = function(oneFlight) {
     console.log('inside saveFlightData');
     // oneFlight = flightObj;
-    console.log('inside showflightDetails function', oneFlight);
+    console.log(oneFlight);
     $http({
       method: 'POST',
       url: '/flightsDetails',
       data: oneFlight
     })
       .success(function(data) {
-        window.location.assign('/flightDetails');
+        if (data.status === 'session') {
+          window.location.assign('/flightPayment');
+        } else {
+          window.location.assign('/account');
+        }
       })
       .error(function(error) {
         alert('error');

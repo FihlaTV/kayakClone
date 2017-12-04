@@ -22,3 +22,7 @@ exports.hotelPayment = function(req, res) {
 exports.hotelDetails = function(req, res) {
   res.render('hotel-details');
 };
+
+exports.flightPayment = function(req, res) {
+  res.render('flight-payment');
+};
