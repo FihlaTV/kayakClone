@@ -75,6 +75,7 @@ app.post('/hotelDetails', hotels.hotelDetails);
 app.post('/loadHotelDetails', hotels.loadHotelDetails);
 app.post('/bookHotelFinal', hotels.bookHotelFinal);
 app.post('/loadFinalBookingHotel', payment.loadFinalBookingHotel);
+app.post('/hotelsPaymentDetails', payment.hotelsPaymentDetails);
 
 app.get('/list', (req, res) => {
   // var cursor = db.collection('quotes').find()

@@ -10,3 +10,8 @@ exports.loadBookHotel = function(req, res) {
 exports.loadFinalBookingHotel = function(req, res) {
   res.send(req.session.hotelDetailsObj);
 };
+
+exports.hotelsPaymentDetails = function(req, res) {
+  var email = req.session.email;
+  res.render('success-payment', { userObj: email });
+};
