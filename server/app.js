@@ -7,8 +7,8 @@ var mysql = require('mysql');
 var ObjectId = require('mongodb').ObjectID;
 var urlencodedPraser=bodyParser.urlencoded({extended:false});
 var status;
-//var auth = require('passport-local-authenticate');
-//var rn = require('random-number');
+var auth = require('passport-local-authenticate');
+var rn = require('random-number');
 
 var redisClient = require('redis').createClient;
 var redis = redisClient(6379, 'localhost');
@@ -739,10 +739,10 @@ app.post('/carBookingDetails',urlencodedPraser,function(req,res){
         console.log(trip_id);
         var saveUser;
      
-            
+            var cartotalprice=req.body.carbaseprice + 0.13*req.body.carbaseprice;
 
-saveUser = " INSERT INTO carbookingdetails (`email`, `tripid`, `carid`, `pickupdate`, `dropoffdate`, `carbaseprice`, `cartotalprice`, `caruserfirstname`, `caruserlastname`, `pickupcity`, `dropoffcity`) VALUES ( '" +
-req.body.email + "','" + trip_id + "','" + req.body.car.carid + "','" + req.body.pickupdate + "','" + req.body.dropoffdate + "','"+ req.body.carbaseprice + "','" + req.body.cartotalprice + "','"+ req.body.caruserfirstname + "','" + req.body.caruserlastname + "','"+ req.body.pickupcity + "','" + req.body.dropoffcity + "'  );";
+saveUser = " INSERT INTO carbookingdetails (`email`, `tripid`, `carbrand`, `pickupdate`, `carbaseprice`, `cartotalprice`,  `pickupcity`) VALUES ( '" +
+req.body.email + "','" + trip_id + "','" + req.body.car.carbrand + "','" + req.body.pickupdate + "','" + req.body.carbaseprice + "','" + cartotalprice + "','"+ req.body.pickupcity +  "'  );";
 
             console.log("Query is:" + saveUser);
             status = 0;
@@ -758,7 +758,7 @@ req.body.email + "','" + trip_id + "','" + req.body.car.carid + "','" + req.body
             }, saveUser);
       
     
-        var saveTripdata="insert into tripdetails values('"+trip_id+"','"+req.body.email+"','"+req.body.bookingtype+"',"+req.body.cartotalamount+",'"+new Date().getDate().toString()+"')"
+        var saveTripdata="insert into tripdetails(tripid, details, bookingtype,totalamount, bookeddate) values('"+trip_id+"','"+req.body.email+"','"+req.body.bookingtype+"',"+cartotalprice+",'"+new Date().toDateString()+"')"
         mysqldbservice.insertData(function (err, results) {
             if (err) {
                 throw err;
@@ -856,3 +856,68 @@ app.get('/analytics', (req, res) => {
        
       })
   })
+  
+
+  app.get('/flightanalytics', (req, res) => {
+   
+    db.collection('analytics').aggregate([
+        {"$group" : {_id:{flightsource:"$flightsource",flightdestination:"$flightdestination",flightname:"$flightname"}, count:{$sum:1}}} ],function(err,result){
+           console.log("here");
+            console.log(result);
+        }
+    
+    )
+   
+  })
+
+  
+  app.get('/hotelanalytics', (req, res) => {
+    
+     db.collection('analytics').aggregate([
+         {"$group" : {_id:{hotelname:"$hotelname",hotelcity:"$hotelcity"}, count:{$sum:1}}} ],function(err,result){
+            console.log("here");
+             console.log(result);
+         }
+     
+     )
+    
+   })
+
+   
+  app.get('/caranalytics', (req, res) => {
+    
+     db.collection('analytics').aggregate([
+         {"$group" : {_id:{carbrand:"$carbrand",carcity:"$carcity"}, count:{$sum:1}}} ],function(err,result){
+            console.log("here");
+             console.log(result);
+         }
+     
+     )
+    
+   })
+
+   
+   /*
+   //get user booking history
+app.post('/userbookinghistory',urlencodedPraser,function(req,res){
+    var selectUser="select * from userinfo";
+    console.log("Query is:"+selectUser );
+    var status=0;
+    var result;
+
+    var data=mysqldbservice.getUserInfo(function(err,results){
+        if(err){
+            throw err;
+        }
+        else
+        {
+            console.log("data:"+results)
+            status=2;
+            //console.log("Data inserted successfully");
+        }
+    },selectUser);
+    console.log("data:"+data)
+    res.json({staus:status});
+});
+
+*/

@@ -14,6 +14,7 @@
     "mongodb": "^2.2.33",
     "mysql": "^2.15.0",
     "passport-local-authenticate": "^1.2.0",
-    "random-number": "0.0.9"
+    "random-number": "0.0.9",
+    "redis": "^2.8.0"
   }
 }

@@ -9,9 +9,9 @@ function getConnection(){
         connectionLimit : 100,
         host : 'localhost',
         user : 'root',
-        password : 'Pass@1234',
+        password : 'root',
         database : 'kayak',
-        port	 : 3306
+        port	 : 3305
     });
     console.log('connected');
     return connection;
@@ -66,6 +66,7 @@ function putdata(callback,sqlQuery){
 
 exports.fetchData=fetchData;
 exports.putdata=putdata;
+exports.getConnection=getConnection;
 
 
 

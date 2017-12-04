@@ -82,34 +82,33 @@ var getUserInfo=function(callback,sqlQuery){
 
 }
 function insertData(callback,sqlQuery){
-
-    console.log("\nSQL Query::"+sqlQuery);
-    var connection=mysql.getConnection();
-    connection.getConnection(function(error,temp_connection){
-        if(!!error)
-        {
-            temp_connection.release();
-            console.log("ERROR: " + err.message);
-        }
-        else
-        {
-            console.log('Connected');
-
-            temp_connection.query(sqlQuery, function(err, rows, fields) {
-                if(err){
-                    console.log("ERROR: " + err.message);
-                }
-                else
-                {	// return err or result
-                    console.log("DB Results:"+rows);
-                    callback(err, rows);
-                }
-            });
-        }
-
-    });
-}
-
+    
+        console.log("\nSQL Query::"+sqlQuery);
+        var connection=mysql.getConnection();
+        connection.getConnection(function(err,temp_connection){
+            if(!err)
+            {
+                temp_connection.release();
+                console.log("ERROR: " + err);
+            }
+            else
+            {
+                console.log('Connected');
+    
+                temp_connection.query(sqlQuery, function(err, rows, fields) {
+                    if(err){
+                        console.log("ERROR: " + err.message);
+                    }
+                    else
+                    {  // return err or result
+                        console.log("DB Results:"+rows);
+                        callback(err, rows);
+                    }
+                });
+            }
+    
+        });
+    }
 
 
 function putdata(req,res)
@@ -133,3 +132,4 @@ function putdata(req,res)
 
 exports.getUserInfo=getUserInfo;
 exports.putdata=putdata;
+exports.insertData=insertData;
