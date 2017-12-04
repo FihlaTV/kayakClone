@@ -70,6 +70,9 @@ app.post('/login', loginRegister.login);
 app.post('/bookHotel', hotels.bookHotel);
 app.get('/hotelPayment', routes.hotelPayment);
 app.post('/loadBookHotel', payment.loadBookHotel);
+app.get('/hotelDetails', routes.hotelDetails);
+app.post('/hotelDetails', hotels.hotelDetails);
+app.post('/loadHotelDetails', hotels.loadHotelDetails);
 
 app.get('/list', (req, res) => {
   // var cursor = db.collection('quotes').find()

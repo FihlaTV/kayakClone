@@ -18,3 +18,7 @@ exports.account = function(req, res) {
 exports.hotelPayment = function(req, res) {
   res.render('hotel-payment');
 };
+
+exports.hotelDetails = function(req, res) {
+  res.render('hotel-details');
+};

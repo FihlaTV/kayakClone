@@ -38,3 +38,24 @@ exports.bookHotel = function(req, res) {
   var json_response = { status: 200 };
   res.send(json_response);
 };
+
+exports.hotelDetails = function(req, res) {
+  console.log('in javascript hoteldetails');
+  console.log(req.body);
+  req.session.hotelDetailsObj = req.body;
+  // var json_response = {
+  //   status: 200,
+  //   data: req.body
+  // };
+  res.render('hotel-details', { hotelDetails: req.body });
+  // res.send(json_response);
+};
+
+exports.loadHotelDetails = function(req, res) {
+  if (
+    req.session.hotelDetailsObj != undefined &&
+    req.session.hotelDetailsObj != null
+  ) {
+    res.send(req.session.hotelDetailsObj);
+  }
+};
