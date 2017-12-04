@@ -111,11 +111,12 @@ function insertData(callback,sqlQuery){
     }
 
 
+/*
 function putdata(req,res)
 {
 	
  
-  var putdata ="  INSERT INTO `kayak`.`flightbookingdetails` (`email`, `bookingid`, `tripid`, `flightsource`, `flightdestination`, `flightbaseprice`, `flighttotalprice`, `flightpassengerdateofbirth`, `flightpassengerfirstname`, `flightpassengerlastname`, `flightpassengergender`, `journeydate`, `flightid`, `airlines`, `flightclass`) VALUES ('sal', '123', '123', 'boston', 'phl', '300', '330', '02/02/1995', 'salauni', 'patel', 'female', '01/01/2018', '123', 'southwest', 'first')";
+  var putdata ="INSERT INTO `kayak`.`flightbookingdetails` (`email`, `bookingid`, `tripid`, `flightsource`, `flightdestination`, `flightbaseprice`, `flighttotalprice`, `flightpassengerdateofbirth`, `flightpassengerfirstname`, `flightpassengerlastname`, `flightpassengergender`, `journeydate`, `flightid`, `airlines`, `flightclass`) VALUES ('sal', '123', '123', 'boston', 'phl', '300', '330', '02/02/1995', 'salauni', 'patel', 'female', '01/01/2018', '123', 'southwest', 'first')";
 
 	console.log("Query is:"+putdata);
 	mysql.putdata(function(err,result){
@@ -129,7 +130,35 @@ function putdata(req,res)
 	   },putdata);
     }
 
+            temp_connection.beginTransaction(function (err) {
 
+                if(err){throw err;}
+                temp_connection.query(sqlQuery, function(err, rows, fields) {
+                    if(err){
+                        console.log("ERROR: " + err.message);
+                        temp_connection.rollback(function () {
+                            throw err;
+                        });
+                    }
+                    else
+                    {	// return err or result
+                        temp_connection.commit(function (err) {
+                            if(err)
+                            {
+                                temp_connection.rollback(function () {
+                                    throw err;
+                                });
+                            }
+                        });
+                        console.log("DB Results:"+rows);
+                        callback(err, rows);
+                    }
+                });
+            });
+
+        }
+
+*/
 exports.getUserInfo=getUserInfo;
-exports.putdata=putdata;
+//exports.putdata=putdata;
 exports.insertData=insertData;

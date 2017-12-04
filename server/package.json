@@ -4,15 +4,24 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "angular": "^1.6.7",
     "body-parser": "^1.18.2",
+    "bootstrap": "^3.3.7",
+    "client-sessions": "^0.8.0",
+    "cors": "^2.8.4",
+    "ejs": "^2.5.7",
     "express": "3.2.6",
+    "font-awesome": "^4.7.0",
     "mongodb": "^2.2.33",
     "mysql": "^2.15.0",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0",
     "passport-local-authenticate": "^1.2.0",
     "random-number": "0.0.9",
     "redis": "^2.8.0"
