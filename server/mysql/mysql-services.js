@@ -95,16 +95,32 @@ function insertData(callback,sqlQuery){
         {
             console.log('Connected');
 
-            temp_connection.query(sqlQuery, function(err, rows, fields) {
-                if(err){
-                    console.log("ERROR: " + err.message);
-                }
-                else
-                {	// return err or result
-                    console.log("DB Results:"+rows);
-                    callback(err, rows);
-                }
+            temp_connection.beginTransaction(function (err) {
+
+                if(err){throw err;}
+                temp_connection.query(sqlQuery, function(err, rows, fields) {
+                    if(err){
+                        console.log("ERROR: " + err.message);
+                        temp_connection.rollback(function () {
+                            throw err;
+                        });
+                    }
+                    else
+                    {	// return err or result
+                        temp_connection.commit(function (err) {
+                            if(err)
+                            {
+                                temp_connection.rollback(function () {
+                                    throw err;
+                                });
+                            }
+                        });
+                        console.log("DB Results:"+rows);
+                        callback(err, rows);
+                    }
+                });
             });
+
         }
 
     });
