@@ -4,9 +4,9 @@ hotels.controller('hotels', function($scope, $http) {
   console.log('in hotels angular');
   var oneHotel = {};
 
-  $scope.bookHotel = function(hotelObj) {
+  $scope.showHotelDetails = function(hotelObj) {
     oneHotel = hotelObj;
-    console.log(oneHotel);
+    console.log('inside showHotelDetails function', oneHotel);
     // window.location.assign('/hotelDetails');
     $http({
       method: 'POST',
@@ -57,7 +57,8 @@ hotels.controller('hotels', function($scope, $http) {
         }
       })
       .error(function(error) {
-        alert('error');
+        // alert('error');
+        console.log(error);
       });
   };
 });

@@ -88,7 +88,7 @@
         </ul>
         <div class="mfp-with-anim mfp-hide mfp-dialog mfp-search-dialog" id="search-dialog">
           <h3>Search for Hotel</h3>
-          <form action="/searchHotelsWithCaching" method = "post">
+          <form action="/hotels" method = "post">
             <div class="form-group form-group-lg form-group-icon-left"><i class="fa fa-map-marker input-icon input-icon-highlight"></i>
               <label>Where are you going?</label>
               <input ng-model="city" class="typeahead form-control" placeholder="City, Airport, Point of Interest, Hotel Name or U.S. Zip Code" type="text" />
@@ -380,8 +380,11 @@
                                                                                                               <h5 class="booking-item-title" ng-model="title" id="title"><%= data[i].Hotels.hotelName %></h5>
                                                                                                               <p class="booking-item-address" ng-model="location" id="location"><i class="fa fa-map-marker"></i> <%= data[i].Hotels.city %></p>
                                                                                                             </div>
-                                                                                                            <div class="col-md-3"><span class="booking-item-price-from">from</span><span class="booking-item-price" ng-model="price" id="price">$<%= data[i].Hotels.price %></span><span>/night</span>
-                                                                                                              <span class="btn btn-primary" ng-click="bookHotel(<%= JSON.stringify(data[i].Hotels) %>)">Details</span>
+                                                                                                            <div class="col-md-3">
+                                                                                                              <span class="booking-item-price-from">from</span>
+                                                                                                              <span class="booking-item-price" ng-model="price" id="price">$<%= data[i].Hotels.price %></span>
+                                                                                                              <span>/night</span>
+                                                                                                              <span class="btn btn-primary" ng-click="showHotelDetails(<%= JSON.stringify(data[i].Hotels) %>)">Details</span>
                                                                                                               <!-- <button class="btn btn-primary" type="submit">Book Now</button> -->
                                                                                                             </div>
                                                                                                           </div>

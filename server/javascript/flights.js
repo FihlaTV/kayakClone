@@ -11,3 +11,12 @@ exports.flightSearch = function(req, res) {
 
   res.render('flights');
 };
+
+exports.loadFlightDetails = function(req, res) {
+  if (
+    req.session.flightDetailsObj != undefined &&
+    req.session.flightDetailsObj != null
+  ) {
+    res.send(req.session.flightDetailsObj);
+  }
+};

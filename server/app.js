@@ -67,12 +67,14 @@ app.get('/account', routes.account);
 app.post('/flightSearch', flights.flightSearch);
 app.post('/carSearch', cars.carSearch);
 app.post('/login', loginRegister.login);
+app.post('/register', loginRegister.register);
 app.post('/bookHotel', hotels.bookHotel);
 app.get('/hotelPayment', routes.hotelPayment);
 app.post('/loadBookHotel', payment.loadBookHotel);
 app.get('/hotelDetails', routes.hotelDetails);
 // app.post('/hotelDetails', hotels.hotelDetails);
 app.post('/loadHotelDetails', hotels.loadHotelDetails);
+app.post('/bookFlight', flights.loadFlightDetails);
 app.post('/bookHotelFinal', hotels.bookHotelFinal);
 app.post('/loadFinalBookingHotel', payment.loadFinalBookingHotel);
 app.post('/hotelsPaymentDetails', payment.hotelsPaymentDetails);
@@ -104,123 +106,6 @@ app.get('/details', (req, res) => {
 //vishnu gave a test api to check hotelsearch
 //Api and function for searching hotels according to date and city with redis caching
 //NOTE : This data is NOT sent for analytics
-app.post('/searchHotelsWithCaching', function(req, res) {
-  //var roomType1 = req.body.roomType;
-  var city = req.body.location.split(',')[0];
-  var date1 = req.body.start;
-  console.log(city);
-  console.log(date1);
-
-  findhotelsCached = function(db, redis, city, date1, callback) {
-    redis.hgetall('hotelsearchdata', function(err, reply) {
-      if (reply) callback(JSON.parse(reply));
-      else {
-        db
-          .collection('hotelsData')
-          .find({
-            //"roomType": roomType1,
-            city: city,
-            date: date1
-          })
-          .toArray(function(err, doc) {
-            redis.hmset(
-              'hotelsearchdata',
-              'city',
-              city,
-              'date',
-              date1,
-              JSON.stringify(doc),
-              function() {
-                console.log(doc);
-                callback(doc);
-              }
-            );
-          });
-      }
-    });
-  };
-
-  findhotelsCached(db, redis, city, date1, function(hotelnames) {
-    console.log(hotelnames);
-    res.status(200).render('hotels', { data: hotelnames });
-    // res.status(200).send(hotelnames);
-  });
-});
-
-app.post('/flights', (req, res) => {
-  console.log(req.body);
-  var passenger = 2;
-
-  var source = req.body.fromPlaceRound.split(',')[0];
-  var destination = req.body.toPlaceRound.split(',')[0];
-  var startDate = req.body.start[0];
-  var returnDate = req.body.end;
-  var noOfPass = passenger;
-
-  var totalAmount = 0;
-  console.log(source);
-  console.log(destination);
-  console.log(startDate);
-  console.log(returnDate);
-
-  var data = {
-    OneWay: {},
-    ReturnWay: {}
-  };
-  search = {
-    source: source,
-    destination: destination,
-    date: startDate
-  };
-  var flightsData = [];
-
-  db
-    .collection('flightsData')
-    .find(search)
-    .toArray(function(err, doc) {
-      data.To = doc;
-      console.log('To:' + data.To);
-
-      if (returnDate === 'none') {
-        //console.log("data.To.length"+data.To.length);
-        for (var i = 0; i < data.To.length; i++) {
-          data.To[i].amount =
-            parseInt(data.To[i].costFlight) * parseInt(noOfPass);
-          console.log(data.To[i].amount);
-          flightsData.push({ OneWay: data.To[i], noOfPassengers: noOfPass });
-        }
-        res.status(200).json({ flightdata: flightsData });
-      } else {
-        search = {
-          source: destination,
-          destination: source,
-          date: returnDate
-        };
-        db
-          .collection('flightsData')
-          .find(search)
-          .toArray(function(err, doc) {
-            data.From = doc;
-            console.log('From:' + data.From);
-            for (var i = 0; i < data.To.length; i++) {
-              data.To[i].amount =
-                parseInt(data.To[i].costFlight) * parseInt(noOfPass);
-              data.From[i].amount =
-                parseInt(data.From[i].costFlight) * parseInt(noOfPass);
-              totalAmount = data.To[i].amount + data.From[i].amount;
-              flightsData.push({
-                OneWay: data.To[i],
-                ReturnWay: data.From[i],
-                totalAmount: totalAmount,
-                noOfPassengers: noOfPass
-              });
-            }
-            console.log(flightsData);
-            res.status(200).render('flights', { data: flightsData });
-          });
-      }
-    });
-});
 
 app.post('/cars', function(req, res) {
   console.log(req.body);
@@ -280,7 +165,7 @@ app.post('/cars', function(req, res) {
 });
 
 //vishnu sent new api email
-
+//hotels
 app.post('/hotels', function(req, res) {
   var hotelsData = [];
   console.log(req.body);
@@ -340,10 +225,17 @@ app.post('/hotels', function(req, res) {
 });
 
 app.post('/hotelsDetails', function(req, res) {
+  console.log('in  hoteldetails vishnu');
+  console.log(req.body);
+  var dataToSendBack = req.body;
   var hotelName = req.body.hotelName;
   var city = req.body.city;
   //var roomType = req.body.roomType;
   var date = req.body.date;
+  console.log('in app.js vishnu');
+  console.log(dataToSendBack);
+  req.session.hotelDetailsObj = dataToSendBack;
+  console.log(req.session.hotelDetailsObj);
 
   //console.log(destination1);
   hotelsDetailsCached = function(db, redis, city, hotelName, date, callback) {
@@ -378,7 +270,8 @@ app.post('/hotelsDetails', function(req, res) {
     });
   };
   hotelsDetailsCached(db, redis, city, hotelName, date, function(book) {
-    // res.status(200).send(book);
+    res.status(200).send(book);
+    // res.send(200);
 
     // Data Pushed toanalytics Db
     var coll = db.collection('analytics');
@@ -394,9 +287,348 @@ app.post('/hotelsDetails', function(req, res) {
         status = 2;
       }
     });
-    res.send(200);
+
+    res.status(200).send(dataToSendBack);
+
+    // res.render('hotel-details', { hotelDetails: req.body });
     //res.json({staus:status});
   });
+});
+
+app.post('/hotelBooking', urlencodedPraser, function(req, res) {
+  console.log('inside hotelbooking api vishnu');
+  console.log(req.body);
+
+  var email = req.session.email;
+
+  var cardnumber = req.body.cardnumber;
+  var cvv = req.body.cvv;
+  var name = req.body.name;
+  var expdate = req.body.expdate;
+  // var email = email;
+
+  var options = {
+    min: 0,
+    max: 10000,
+    integer: true
+  };
+  var trip_id = rn(options);
+  console.log(trip_id);
+  var saveUser;
+
+  //push to hotel booking details
+  saveUser =
+    " INSERT INTO hotelbookingdetails (`email`, `tripid`, `hotelname`, `hoteladdress`, `checkindate`, `checkoutdate`, `noofguests`, `hotelbaseprice`, `hoteltotalprice`) VALUES ( '" +
+    email +
+    "','" +
+    trip_id +
+    "','" +
+    req.session.hotelDetailsObj.hotelName +
+    "','" +
+    req.session.hotelDetailsObj.location +
+    "','" +
+    req.session.hotelDetailsObj.date +
+    "','" +
+    'Dec 4, Mon' +
+    "','" +
+    '2' +
+    "','" +
+    req.session.hotelDetailsObj.price +
+    "' ,'" +
+    req.session.hotelDetailsObj.amount +
+    "') ";
+
+  console.log('Query is:' + saveUser);
+  status = 0;
+
+  mysqldbservice.insertData(function(err, results) {
+    if (err) {
+      throw err;
+    } else {
+      status = 2;
+      console.log('Data hotelDetails inserted successfully');
+    }
+  }, saveUser);
+
+  //Push Cc details
+  var saveCcdata =
+    "insert into carddetails (cardnumber,cvv, name, expdate, email)VALUES ('" +
+    cardnumber +
+    "','" +
+    cvv +
+    "','" +
+    name +
+    "','" +
+    expdate +
+    "','" +
+    email +
+    "')'";
+  mysqldbservice.insertData(function(err, results) {
+    if (err) {
+      throw err;
+    } else {
+      status = 2;
+      console.log('Data inserted successfully');
+    }
+  }, saveCcdata);
+
+  //push toTripdetailstable
+  var saveTripdata =
+    "insert into tripdetails (tripid,email,bookingtype,totalamount,bookeddate) VALUES ('" +
+    trip_id +
+    "','" +
+    email +
+    "','" +
+    req.session.hotelDetailsObj.roomType +
+    "','" +
+    req.session.hotelDetailsObj.amount +
+    "','" +
+    new Date().toDateString() +
+    "')'";
+  mysqldbservice.insertData(function(err, results) {
+    if (err) {
+      throw err;
+    } else {
+      status = 2;
+      console.log('Data inserted successfully hotelDetails');
+    }
+  }, saveTripdata);
+
+  res.render('success-payment', { userObj: email });
+});
+
+//flightSearch
+
+app.post('/flights', (req, res) => {
+  console.log(req.body);
+  var passenger = 2;
+
+  var source = req.body.fromPlaceRound.split(',')[0];
+  var destination = req.body.toPlaceRound.split(',')[0];
+  var startDate = req.body.start[0];
+  var returnDate = req.body.end;
+  var noOfPass = passenger;
+
+  var totalAmount = 0;
+
+  var data = {
+    OneWay: {},
+    ReturnWay: {}
+  };
+  search = {
+    source: source,
+    destination: destination,
+    date: startDate
+  };
+  var flightsData = [];
+
+  db
+    .collection('flightsData')
+    .find(search)
+    .toArray(function(err, doc) {
+      data.To = doc;
+      console.log('To:' + data.To);
+
+      if (returnDate === 'none') {
+        //console.log("data.To.length"+data.To.length);
+        for (var i = 0; i < data.To.length; i++) {
+          data.To[i].amount =
+            parseInt(data.To[i].costFlight) * parseInt(noOfPass);
+          console.log(data.To[i].amount);
+          flightsData.push({ OneWay: data.To[i], noOfPassengers: noOfPass });
+        }
+        res.status(200).json({ flightdata: flightsData });
+      } else {
+        search = {
+          source: destination,
+          destination: source,
+          date: returnDate
+        };
+        db
+          .collection('flightsData')
+          .find(search)
+          .toArray(function(err, doc) {
+            data.From = doc;
+            console.log('From:' + data.From);
+            for (var i = 0; i < data.To.length; i++) {
+              data.To[i].amount =
+                parseInt(data.To[i].costFlight) * parseInt(noOfPass);
+              data.From[i].amount =
+                parseInt(data.From[i].costFlight) * parseInt(noOfPass);
+              totalAmount = data.To[i].amount + data.From[i].amount;
+              flightsData.push({
+                OneWay: data.To[i],
+                ReturnWay: data.From[i],
+                totalAmount: totalAmount,
+                noOfPassengers: noOfPass
+              });
+            }
+
+            // console.log(flightsData);
+            // res.status(200).json({ flightdata: flightsData });
+            console.log(flightsData);
+            res.status(200).render('flights', { data: flightsData });
+          });
+      }
+    });
+});
+
+app.post('/flightsDetails', (req, res) => {
+  console.log('in  flightDetails vishnu');
+  console.log(req.body);
+
+  // var dataToSendBack = req.body;
+  // var hotelName = req.body.hotelName;
+  // var city = req.body.city;
+  // //var roomType = req.body.roomType;
+  // var date = req.body.date;
+  // console.log('in app.js vishnu');
+  // console.log(dataToSendBack);
+  // req.session.hotelDetailsObj = dataToSendBack;
+  // console.log(req.session.hotelDetailsObj);
+
+  // console.log(req.body);
+  var id1 = req.body.id1;
+  var id2 = req.body.id2;
+  search = {
+    _id: { $in: [ObjectId(id1), ObjectId(id2)] }
+  };
+  //var flightsData=[];
+  db
+    .collection('flightsData')
+    .find(search)
+    .toArray(function(err, doc) {
+      // console.log(doc);
+      //res.status(200).json({flightdata:flightsData});
+      // console.log(doc);
+
+      /*
+            //pushsearched data to analytics DB
+        var coll = db.collection('analytics');
+
+        coll.insert(doc,function(err,result){
+            if(err){
+                console.log('error: '+err);
+            }
+            console.log('Flight data record inserted for ANALYTICS');
+            status=2;
+        });
+
+*/
+      res.send(200);
+    });
+});
+
+app.post('/flightBooking', urlencodedPraser, function(req, res) {
+  var cardnumber = req.body.cardnumber;
+  var cvv = req.body.cvv;
+  var name = req.body.name;
+  var expdate = req.body.expdate;
+  var email = req.body.email;
+
+  var totalamount = req.body.totalamount;
+  //var ccpasscode =req.body.ccpasscode
+
+  var options = {
+    min: 0,
+    max: 10000,
+    integer: true
+  };
+  var trip_id = rn(options);
+  console.log('flight booking' + trip_id);
+  //varfinalprice=
+  var saveUser;
+  for (var i = 0; i < req.body.passenger_details.length; i++) {
+    saveUser =
+      'insert into flightbookingdetails( email , tripid ,  flightsource ,  flightdestination ,  flightbaseprice ,  flighttotalprice ,' +
+      '  flightpassengerdateofbirth ,  flightpassengerfirstname ,  flightpassengerlastname ,  flightpassengergender ,  journeydate ,  flightid ,  airlines ,' +
+      "  flightclass  ) values('" +
+      req.body.email +
+      "','" +
+      trip_id +
+      "','" +
+      req.body.flight.flightsource +
+      "','" +
+      req.body.flight.flightdestination +
+      "','" +
+      req.body.flight.flightbaseprice +
+      "','" +
+      totalamount +
+      "','" +
+      req.body.passenger_details[i].flightpassengerdateofbirth +
+      "','" +
+      req.body.passenger_details[i].flightpassengerfirstname +
+      "','" +
+      req.body.passenger_details[i].flightpassengerlastname +
+      "','" +
+      req.body.passenger_details[i].flightpassengergender +
+      "','" +
+      req.body.journeydate +
+      "','" +
+      req.body.flight.flight_id +
+      "','" +
+      req.body.flight.airlines +
+      "','" +
+      req.body.flightclass +
+      "')";
+    console.log('Query is:' + saveUser);
+    status = 0;
+
+    mysqldbservice.insertData(function(err, results) {
+      if (err) {
+        throw err;
+      } else {
+        status = 2;
+        console.log('Data inserted successfully');
+      }
+    }, saveUser);
+  }
+
+  //Pushtrip details
+  var saveTripdata =
+    "insert into tripdetails values('" +
+    trip_id +
+    "','" +
+    req.body.email +
+    "','" +
+    req.body.bookingtype +
+    "'," +
+    req.body.totalamount +
+    ",'" +
+    new Date().toDateString() +
+    "')";
+  mysqldbservice.insertData(function(err, results) {
+    if (err) {
+      throw err;
+    } else {
+      status = 2;
+      console.log('Data inserted successfully');
+    }
+  }, saveTripdata);
+
+  //Push Cc details
+  var saveCcdata =
+    "insert into carddetails (cardnumber,cvv, name, expdate, email)VALUES ('" +
+    cardnumber +
+    "','" +
+    cvv +
+    "','" +
+    name +
+    "'," +
+    expdate +
+    ",'" +
+    email +
+    "')";
+  mysqldbservice.insertData(function(err, results) {
+    if (err) {
+      throw err;
+    } else {
+      status = 2;
+      console.log('Data inserted successfully');
+    }
+  }, saveCcdata);
+
+  res.json({ staus: status });
 });
 
 //app.get('/userinfo',mysqldbservice.getUserInfo)
@@ -594,16 +826,6 @@ findflightsCached = function(
     }
   });
 };
-
-app.post('/searchFlightsWithCaching', function(req, res) {
-  var source1 = req.body.source;
-  var destination1 = req.body.destination;
-  var date1 = req.body.date;
-  console.log(destination1);
-  findflightsCached(db, redis, source1, destination1, date1, function(book) {
-    res.status(200).send(book);
-  });
-});
 
 //add new user - signup
 

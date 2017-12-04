@@ -16,6 +16,7 @@ exports.register = function(req, res) {
   console.log(req.body);
   console.log('in register function js');
   req.session.email = req.body.email;
+  req.session.fullName = req.body.fullName;
   if (
     req.session.hotelDetailsObj != undefined &&
     req.session.hotelDetailsObj != null

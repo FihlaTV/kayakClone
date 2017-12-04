@@ -381,12 +381,13 @@
                                             <h5><%= data[i].OneWay.duration %>h 0m</h5>
                                             <p>0 stop</p>
                                         </div>
-                                        <div class="col-md-2"><span class="booking-item-price">$<%= data[i].OneWay.amount + data[i].ReturnWay.amount %></span><span>/person</span>
-                                            <p class="booking-item-flight-class">Class: Economy</p><a class="btn btn-primary" href="#">Details</a>
+                                        <div class="col-md-3"><span class="booking-item-price">$<%= data[i].OneWay.amount + data[i].ReturnWay.amount %></span><span>/person</span>
+                                            <p class="booking-item-flight-class">Class: Economy</p>
+                                            <span class="btn btn-primary" >Details</span>
                                         </div>
-                                        <div class="col-md-2">
-                                          <span class="btn btn-primary flightButtons" ng-click="bookHotel(<%= JSON.stringify(data[i]) %>)">Book Now</span>
-                                        </div>
+                                        <!-- <div class="col-md-2">
+                                          <a href="#" class="btn btn-primary flightButtons" ng-click="saveFlightDetails(<%= JSON.stringify(data[i]) %>">Book now</a>
+                                        </div> -->
                                         <div class="col-md-2">
                                             <div class="booking-item-airline-logo">
                                                 <img src="<%=data[i].ReturnWay.image%>" alt="Image Alternative text" title="Image Title" />
@@ -427,6 +428,11 @@
                                                 <li>Economy / Coach Class ( M)</li>
                                                 <li>Depart <%= data[i].ReturnWay.time %>:00 - Duration <%= data[i].ReturnWay.duration %> hours</li>
                                             </ul>
+
+                                            <div class="col-md-4 pull-right">
+                                              <span class="btn btn-primary" ng-click="saveFlightDetails()">Book now</span>
+                                              <!-- <button class="btn btn-primary" type="submit">Book Now</button> -->
+                                            </div>
 
                                         </div>
                                     </div>

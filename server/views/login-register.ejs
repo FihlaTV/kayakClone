@@ -22,10 +22,12 @@
     <link rel="stylesheet" href="/stylesheets/mystyles.css">
     <script src="js/modernizr.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
+    <script src="/angularjs/home.js"></script>
+
     <!-- <script src="angularjs/login-register.js"></script> -->
 </head>
 
-<body>
+<body >
 
 
     <div class="global-wrap">
@@ -221,17 +223,17 @@
                     </form>
                 </div>
                 <div class="col-md-4">
-                    <h3>New To Traveler?</h3>
-                    <form>
+                    <h3>New To Kayak?</h3>
+                      <form method="post" action="/register">
                         <div class="form-group form-group-icon-left"><i class="fa fa-user input-icon input-icon-show"></i>
                             <label>Full Name</label>
-                            <input class="form-control" placeholder="e.g. John Doe" type="text" />
+                            <input class="form-control" name="fullName" placeholder="e.g. John Doe" type="text" />
                         </div>
                         <div class="form-group form-group-icon-left"><i class="fa fa-envelope input-icon input-icon-show"></i>
-                            <label>Emai</label>
-                            <input class="form-control" placeholder="e.g. johndoe@gmail.com" type="text" />
+                            <label>Email</label>
+                            <input class="form-control" name="email" placeholder="e.g. johndoe@gmail.com" type="text" />
                         </div>
-                        <div class="form-group form-group-icon-left"><i class="fa fa-lock input-icon input-icon-show"></i>
+                        <div class="form-group form-group-icon-left" name="password"><i class="fa fa-lock input-icon input-icon-show"></i>
                             <label>Password</label>
                             <input class="form-control" type="password" placeholder="my secret password" />
                         </div>
