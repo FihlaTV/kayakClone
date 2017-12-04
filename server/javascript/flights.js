@@ -20,3 +20,14 @@ exports.loadFlightDetails = function(req, res) {
     res.send(req.session.flightDetailsObj);
   }
 };
+
+exports.loadFlightPayment = function(req, res) {
+  if (
+    req.session.oneFlightObj != undefined &&
+    req.session.oneFlightObj != null
+  ) {
+    console.log('in load flightpayment');
+    console.log(req.session.oneFlightObj);
+    res.send(req.session.oneFlightObj);
+  }
+};

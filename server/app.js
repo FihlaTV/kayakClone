@@ -79,6 +79,7 @@ app.post('/bookHotelFinal', hotels.bookHotelFinal);
 app.post('/loadFinalBookingHotel', payment.loadFinalBookingHotel);
 app.post('/hotelsPaymentDetails', payment.hotelsPaymentDetails);
 app.get('/flightPayment', routes.flightPayment);
+app.post('/loadFlightPayment', flights.loadFlightPayment);
 
 app.get('/list', (req, res) => {
   // var cursor = db.collection('quotes').find()
@@ -401,14 +402,15 @@ app.post('/hotelBooking', urlencodedPraser, function(req, res) {
 //flightSearch
 
 app.post('/flights', (req, res) => {
+  console.log('in /flights appjs');
   console.log(req.body);
-  var passenger = 2;
+  req.session.flightPassengers = req.body.passengers;
 
   var source = req.body.fromPlaceRound.split(',')[0];
   var destination = req.body.toPlaceRound.split(',')[0];
   var startDate = req.body.start[0];
   var returnDate = req.body.end;
-  var noOfPass = passenger;
+  var noOfPass = req.body.passengers;
 
   var totalAmount = 0;
 

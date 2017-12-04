@@ -1,15 +1,21 @@
 var flights = angular.module('flights', []);
 // defining the login controller
 flights.controller('flights', function($scope, $http) {
-  $scope.bookFlightFinal = function() {
+  $scope.loadFlightFinal = function() {
+    console.log('in flights final');
     $http({
       method: 'POST',
-      url: '/bookFlight',
-      data: $scope.hotelList[index]
+      url: '/loadFlightPayment'
     })
       .success(function(data) {
+        $scope.flightData = data;
+        console.log($scope.flightData);
+        $scope.numOfPassengersArr = [];
+        for (var z = 0; z < data.noOfPassengers; z++) {
+          $scope.numOfPassengersArr.push(z);
+        }
+        console.log('in load flight final');
         console.log(data);
-        window.location.assign('/hotelPayment');
       })
       .error(function(error) {
         alert('error');
