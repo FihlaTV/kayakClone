@@ -3,26 +3,6 @@ var hotels = angular.module('hotels', []);
 hotels.controller('hotels', function($scope, $http) {
   console.log('in hotels angular');
   var oneHotel = {};
-  //api or db
-  // $scope.hotelList = [
-  //   {
-  //     title: 'abc',
-  //     location: 'sjc',
-  //     price: '100',
-  //     ratingNumber: '4',
-  //     reviews: '10000'
-  //   },
-  //   {
-  //     title: 'abc1',
-  //     location: 'sjc1',
-  //     price: '1001',
-  //     ratingNumber: '4.1',
-  //     reviews: '100001'
-  //   }
-  // ];
-  //
-  // //on success of api
-  // $scope.numberOfHotels = $scope.hotelList.length;
 
   $scope.bookHotel = function(hotelObj) {
     oneHotel = hotelObj;
@@ -40,6 +20,9 @@ hotels.controller('hotels', function($scope, $http) {
         alert('error');
       });
   };
+  $scope.getStars = function(stars) {
+    return new Array(stars);
+  };
 
   $scope.loadHotelDetails = function() {
     $http({
@@ -48,7 +31,25 @@ hotels.controller('hotels', function($scope, $http) {
     })
       .success(function(data) {
         console.log('in load hotel details angular');
+        $scope.loadHotelDetails = data;
         console.log(data);
+      })
+      .error(function(error) {
+        alert('error');
+      });
+  };
+
+  $scope.bookHotelFinal = function() {
+    $http({
+      method: 'POST',
+      url: '/bookHotelFinal'
+    })
+      .success(function(data) {
+        if (data.status === 'session') {
+          window.location.assign('/hotelPayment');
+        } else {
+          window.location.assign('/account');
+        }
       })
       .error(function(error) {
         alert('error');

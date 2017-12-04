@@ -43,12 +43,7 @@ exports.hotelDetails = function(req, res) {
   console.log('in javascript hoteldetails');
   console.log(req.body);
   req.session.hotelDetailsObj = req.body;
-  // var json_response = {
-  //   status: 200,
-  //   data: req.body
-  // };
   res.render('hotel-details', { hotelDetails: req.body });
-  // res.send(json_response);
 };
 
 exports.loadHotelDetails = function(req, res) {
@@ -57,5 +52,18 @@ exports.loadHotelDetails = function(req, res) {
     req.session.hotelDetailsObj != null
   ) {
     res.send(req.session.hotelDetailsObj);
+  }
+};
+
+exports.bookHotelFinal = function(req, res) {
+  console.log('in book hotel final javascripe');
+  if (req.session.email != undefined && req.session.email != null) {
+    res.send({
+      status: 'session'
+    });
+  } else {
+    res.send({
+      status: 'noSession'
+    });
   }
 };

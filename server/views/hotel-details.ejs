@@ -100,8 +100,8 @@
                 <header class="booking-item-header">
                     <div class="row">
                         <div class="col-md-9">
-                            <h2 class="lh1em">InterContinental New York Barclay</h2>
-                            <p class="lh1em text-small"><i class="fa fa-map-marker"></i> 6782 Sarasea Circle, Siesta Key, FL 34242</p>
+                            <h2 class="lh1em">{{loadHotelDetails.hotelName}}</h2>
+                            <p class="lh1em text-small"><i class="fa fa-map-marker"></i> {{loadHotelDetails.city}}</p>
                             <ul class="list list-inline text-small">
                                 <li><a href="#"><i class="fa fa-envelope"></i> Hotel E-mail</a>
                                 </li>
@@ -111,7 +111,7 @@
                             </ul>
                         </div>
                         <div class="col-md-3">
-                            <p class="booking-item-header-price"><small>price from</small>  <span class="text-lg">$350</span>/night</p>
+                            <p class="booking-item-header-price"><small>price from</small>  <span class="text-lg">${{loadHotelDetails.price}}</span>/night</p>
                         </div>
                     </div>
                 </header>
@@ -156,18 +156,10 @@
                             <h3>97% <small >of guests recommend</small></h3>
                             <div class="booking-item-rating">
                                 <ul class="icon-list icon-group booking-item-rating-stars">
-                                    <li><i class="fa fa-star"></i>
+                                    <li ng-repeat="i in getStars(loadHotelDetails.stars)"><i class="fa fa-star"></i>
                                     </li>
-                                    <li><i class="fa fa-star"></i>
-                                    </li>
-                                    <li><i class="fa fa-star"></i>
-                                    </li>
-                                    <li><i class="fa fa-star"></i>
-                                    </li>
-                                    <li><i class="fa fa-star"></i>
-                                    </li>
-                                </ul><span class="booking-item-rating-number"><b >4.7</b> of 5 <small class="text-smaller">guest rating</small></span>
-                                <p><a class="text-default" href="#">based on 1535 reviews</a>
+                                </ul><span class="booking-item-rating-number"><b >{{loadHotelDetails.stars}}</b> of 5 <small class="text-smaller">guest rating</small></span>
+                                <p><a class="text-default" href="#">based on {{loadHotelDetails.reviews}} reviews</a>
                                 </p>
                             </div>
                         </div>
@@ -293,7 +285,7 @@
                                 </ul>
                             </div>
                         </div>
-                        <a href="#" class="btn btn-primary">Book now</a>
+                        <a href="#" class="btn btn-primary" ng-click="bookHotelFinal()">Book now</a>
                     </div>
                 </div>
                 <div class="gap"></div>
