@@ -20,18 +20,16 @@ var redisClient = require('redis').createClient;
 var redis = redisClient(6379, 'localhost');
 
 var app = express();
+var cors = require('cors');
+var passport = require("passport");
+require('./passport')(passport);
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(express.bodyParser());
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(function(req, res, next) {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
+
 
 app.use(
   session({
@@ -42,6 +40,13 @@ app.use(
   })
 );
 
+var corsOptions = {
+    origin: 'http://localhost:3000',
+    credentials: true,
+}
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(cors(corsOptions))
 // MOngo Connection
 
 app.listen(3001, function() {
@@ -73,11 +78,11 @@ app.post('/loadBookHotel', payment.loadBookHotel);
 
 app.get('/list', (req, res) => {
   // var cursor = db.collection('quotes').find()
-  db
-    .collection('flightsData')
-    .find()
+  db.collection('flightsData')
+    .find().limit(100)
     .toArray(function(err, results) {
       console.log(results);
+        res.status(200).json({files:results});
       // send HTML file populated with quotes here
     });
 });
@@ -198,107 +203,10 @@ app.post('/updateUserAccount', urlencodedPraser, function(req, res) {
     } else {
       status = 2;
       console.log('Data inserted successfully');
+        res.json({ staus: status });
     }
   }, updateUser);
-  res.json({ staus: status });
-});
 
-findflightsCached = function(
-  db,
-  redis,
-  source1,
-  destination1,
-  date1,
-  callback
-) {
-  redis.hgetall('data', function(err, reply) {
-    if (reply) callback(JSON.parse(reply));
-    else {
-      db
-        .collection('flightsData')
-        .find({
-          source: source1,
-          destination: destination1,
-          Date: date1
-        })
-        .toArray(function(err, doc) {
-          redis.hmset(
-            'data',
-            'source',
-            source1,
-            'destination',
-            destination1,
-            'date',
-            date1,
-            JSON.stringify(doc),
-            function() {
-              console.log(doc);
-              callback(doc);
-            }
-          );
-        });
-    }
-  });
-};
-
-app.post('/searchFlightsWithCaching', function(req, res) {
-  var source1 = req.body.source;
-  var destination1 = req.body.destination;
-  var date1 = req.body.date;
-  console.log(destination1);
-  findflightsCached(db, redis, source1, destination1, date1, function(book) {
-    res.status(200).send(book);
-  });
-});
-
-///////
-
-findflightsCached = function(
-  db,
-  redis,
-  source1,
-  destination1,
-  date1,
-  callback
-) {
-  redis.hgetall('data', function(err, reply) {
-    if (reply) callback(JSON.parse(reply));
-    else {
-      db
-        .collection('flightsData')
-        .find({
-          source: source1,
-          destination: destination1,
-          Date: date1
-        })
-        .toArray(function(err, doc) {
-          redis.hmset(
-            'data',
-            'source',
-            source1,
-            'destination',
-            destination1,
-            'date',
-            date1,
-            JSON.stringify(doc),
-            function() {
-              console.log(doc);
-              callback(doc);
-            }
-          );
-        });
-    }
-  });
-};
-
-app.post('/searchFlightsWithCaching', function(req, res) {
-  var source1 = req.body.source;
-  var destination1 = req.body.destination;
-  var date1 = req.body.date;
-  console.log(destination1);
-  findflightsCached(db, redis, source1, destination1, date1, function(book) {
-    res.status(200).send(book);
-  });
 });
 
 //add new user - signup
@@ -360,10 +268,11 @@ app.get('/userinfo', urlencodedPraser, function(req, res) {
       console.log('data:' + results);
       status = 2;
       //console.log("Data inserted successfully");
+        res.json({ users: results });
     }
   }, selectUser);
   console.log('data:' + data);
-  res.json({ staus: status });
+
 });
 
 //flight booking
@@ -434,7 +343,7 @@ app.post('/addBookingDetails', urlencodedPraser, function(req, res) {
     "'," +
     req.body.totalamount +
     ",'" +
-    new Date().getDate().toString() +
+    new Date().toDateString()+
     "')";
   mysqldbservice.insertData(function(err, results) {
     if (err) {
@@ -468,17 +377,18 @@ app.post('/getFlightTicket', urlencodedPraser, function(req, res) {
       console.log('data:' + results);
       status = 2;
       //console.log("Data inserted successfully");
+        res.json({ receipt: results });
     }
   }, selectUser);
   console.log('data:' + data);
-  res.json({ staus: status });
+
 });
 
 //get Hotel receipt
 app.post('/getHotelTicket', urlencodedPraser, function(req, res) {
   var selectUser =
     'select * from tripdetails td ' +
-    "inner join hotelbookingdtails hbk on hbk.tripid=td.tripid where td.tripid='" +
+    "inner join hotelbookingdetails hbk on hbk.tripid=td.tripid where td.tripid='" +
     req.body.tripid +
     "'";
   console.log('Query is:' + selectUser);
@@ -492,8 +402,389 @@ app.post('/getHotelTicket', urlencodedPraser, function(req, res) {
       console.log('data:' + results);
       status = 2;
       //console.log("Data inserted successfully");
+        res.json({ hotelreceipt: results });
+
     }
   }, selectUser);
   console.log('data:' + data);
-  res.json({ staus: status });
 });
+
+//amita's code
+
+app.post('/tripdetails',urlencodedPraser,function(req,res){
+    var selectUser="select * from tripdetails where email='"+req.body.email+"'";
+    console.log("Query is:"+selectUser );
+    var status=0;
+    var result;
+
+    var data=mysqldbservice.getUserInfo(function(err,results){
+        if(err){
+            throw err;
+        }
+        else
+        {
+            console.log("data:"+results)
+            status=2;
+            res.status(200).json({tripdetails:results})
+            //console.log("Data inserted successfully");
+        }
+    },selectUser);
+    console.log("data:"+data)
+    //res.json({data:result});
+});
+
+//get car booking receipt
+app.post('/getCarreceipt',urlencodedPraser,function(req,res){
+    var selectUser="select * from tripdetails td " +
+        "inner join carbookingdetails car on car.tripid=td.tripid where td.tripid='"+req.body.tripid+"'";
+    console.log("Query is:"+selectUser );
+    var status=0;
+    var result;
+
+    var data=mysqldbservice.getUserInfo(function(err,results){
+        if(err){
+            throw err;
+        }
+        else
+        {
+            console.log("data:"+results)
+            status=2;
+            res.json({carreceipt:results});
+
+        }
+    },selectUser);
+    console.log("data:"+data)
+});
+
+app.get('/listoffhotels', (req, res) => {
+    db.collection('hotelsData').find().limit(100).toArray(function(err, results) {
+        console.log(results)
+        // send HTML file populated with quotes here
+        res.status(200).json({hotels:results})
+
+    })
+})
+
+//amita for holesData
+app.post('/addHoteldata1',urlencodedPraser,function(req,res){
+
+    var coll = db.collection('hotelsData');
+
+    console.log(req);
+    console.log(req.body.duration);
+
+    var hoteldata={
+        "city": req.body.city,
+        "price": req.body.price,
+        "reviews": req.body.reviews,
+        "hotelName": req.body.hotel_name,
+        "stars": req.body.stars
+    };
+    coll.insert(hoteldata,function(err,result){
+        if(err){
+            console.log('error: '+err);
+        }
+        console.log('record inserted');
+
+        status=2;
+        console.log("Data inserted successfully");
+    });
+    res.json({staus:status});
+});
+
+//update for hotelsData
+app.post('/updateHoteldata1',urlencodedPraser,function(req,res){
+
+    var coll = db.collection('hotelsData');
+    var hotelid={_id:ObjectId(req.body.hotel_id)};
+    var hoteldata={$set:
+            {
+                "city": req.body.city,
+                "price": req.body.price,
+                "reviews": req.body.reviews,
+                "hotelName": req.body.hotel_name,
+                "stars": req.body.stars
+            }
+    };
+    coll.update(hotelid,hoteldata,function(err,result){
+        if(err){
+            console.log('error: '+err);
+        }
+        console.log('record updated');
+
+        status=2;
+        console.log("Data updated successfully");
+    });
+    res.json({staus:status});
+});
+
+//for hotel details
+
+app.post('/hoteldetails', (req, res) => {
+    // var cursor = db.collection('quotes').find()
+    console.log("flight id:"+req.body.hotel_id)
+    db.collection('hotelsData').findOne({"_id":ObjectId(req.body.hotel_id)},function(err, results) {
+        console.log(results)
+        console.log(results._id)
+        res.status(200).json({hoteldata:results})
+    })
+})
+
+//ADMIN ANALYSIS - get revenue bysrc , flights only
+app.post('/all_revenue',function(req,res){
+    var status=0;
+    var result;
+    //var flight_revenue_by_src="SELECT top 5 SUM(flightbaseprice) FROM kayak.flightbookingdetails order by 1 desc";// where flightsource='" +req.body.flightsource+"'";
+    var revenue="select bookingtype as name,sum(totalamount) as value from tripdetails group by bookingtype";
+
+    var data=mysqldbservice.getUserInfo(function(err,results){
+        if(err){
+            console.log("error"+err);
+        }
+        else
+        {
+            status=200;
+            console.log("datghghha:", results);
+
+            //console.log("revenuw data of flight--"+JSON.parse(results)[0].flightbaseprice);
+            res.json({revenue:results});
+        }
+    },revenue);
+    //console.log("flight_revenue_by_src data for admin analysis:"+data)
+
+});
+
+//ADMIN ANALYSIS - get revenue bysrc , flights only
+app.post('/hotel_revenue_top10',function(req,res){
+    var status=0;
+    var result;
+    //var flight_revenue_by_src="SELECT top 5 SUM(flightbaseprice) FROM kayak.flightbookingdetails order by 1 desc";// where flightsource='" +req.body.flightsource+"'";
+    var revenue="select sum(hoteltotalprice) as revenue, hotelname from hotelbookingdetails\n" +
+        "group by hotelname\n" +
+        "order by revenue desc limit 3";
+
+    var data=mysqldbservice.getUserInfo(function(err,results){
+        if(err){
+            console.log("error"+err);
+        }
+        else
+        {
+            status=200;
+            console.log("datghghha:", results);
+
+            //console.log("revenuw data of flight--"+JSON.parse(results)[0].flightbaseprice);
+            res.json({revenue:results});
+        }
+    },revenue);
+    //console.log("flight_revenue_by_src data for admin analysis:"+data)
+
+});
+
+app.post('/city_revenue_top10',function(req,res){
+    var status=0;
+
+    var revenue="select sum(totalamount) as revenue, city from tripdetails\n" +
+        "where bookingtype='"+req.body.bookingtype+"'\n" +
+        "group by city\n" +
+        "order by revenue desc limit 10";
+
+    var data=mysqldbservice.getUserInfo(function(err,results){
+        if(err){
+            console.log("error"+err);
+        }
+        else
+        {
+            status=200;
+            console.log("datghghha:", results);
+            res.json({revenueData:results});
+        }
+    },revenue);
+});
+
+app.post('/getUserDetails',function(req,res){
+    var status=0;
+
+    var revenue="select * from userinfo where email='"+req.body.email+"'";
+
+    var data=mysqldbservice.getUserInfo(function(err,results){
+        if(err){
+            console.log("error"+err);
+        }
+        else
+        {
+            status=200;
+            console.log("datghghha:", results);
+            res.json({userinfo:results});
+        }
+    },revenue);
+});
+
+//car APIs
+
+app.get('/listoffcars', (req, res) => {
+    db.collection('carsData').find().limit(100).toArray(function(err, results) {
+        console.log(results)
+        // send HTML file populated with quotes here
+        res.status(200).json({cars:results})
+
+    })
+})
+
+app.post('/addCardata1',urlencodedPraser,function(req,res){
+
+    var coll = db.collection('carsData');
+
+    console.log("price:"+req.body.price);
+    console.log("city:"+req.body.city);
+    console.log("brand:"+req.body.brand);
+
+    var cardata={
+        "city": req.body.city,
+        "price": req.body.price,
+        "brand": req.body.brand
+    };
+    coll.insert(cardata,function(err,result){
+        if(err){
+            console.log('error: '+err);
+        }
+        console.log('record inserted');
+
+        status=2;
+        console.log("Data inserted successfully");
+        res.json({staus:status});
+    });
+});
+
+//update for hotelsData
+app.post('/updateCardata1',urlencodedPraser,function(req,res){
+
+    console.log("price:"+req.body.price);
+    console.log("city:"+req.body.city);
+    console.log("brand:"+req.body.brand);
+
+    var coll = db.collection('carsData');
+    var carid={_id:ObjectId(req.body.car_id)};
+    var cardata={$set:
+            {
+                "city": req.body.city,
+                "price": req.body.price,
+                "brand": req.body.brand
+            }
+    };
+    coll.update(carid,cardata,function(err,result){
+        if(err){
+            console.log('error: '+err);
+        }
+        console.log('record updated');
+
+        status=2;
+        console.log("Data updated successfully");
+        res.json({staus:status});
+    });
+});
+
+//for hotel details
+
+app.post('/cardetails', (req, res) => {
+    // var cursor = db.collection('quotes').find()
+    console.log("flight id:"+req.body.car_id)
+    db.collection('carsData').findOne({"_id":ObjectId(req.body.car_id)},function(err, results) {
+        console.log(results)
+        console.log(results._id)
+        res.status(200).json({cardata:results})
+    })
+})
+
+
+app.post('/flights', (req, res) => {
+    var To = req.body.To;
+    var From = req.body.From;
+    //var date1= req.body.date;
+    console.log("test" + req.body.To);
+
+    console.log(To.location);
+    console.log(To.Date);
+    console.log(From.location);
+    console.log(From.Date);
+
+    var data = {
+        To: {},
+        From: {}
+    };
+    search = {
+        "source": To.location,
+        "destination": From.location,
+        "date": To.Date
+    };
+    var flightsData=[];
+
+    db.collection('flightsData').find(search).toArray(function (err, doc) {
+        data.To = doc;
+        console.log('To:' + data.To);
+        search = {
+            "source": From.location,
+            "destination": To.location,
+            "date": From.Date
+        };
+
+        db.collection('flightsData').find(search).toArray(function (err, doc) {
+
+            data.From = doc;
+            console.log('From:' + data.From);
+            for(var i=0;i<data.To.length;i++)
+            {
+                flightsData.push({To:data.To[i],From:data.From[i]});
+            }
+            res.status(200).json({flightdata:flightsData});
+        })
+
+    })
+})
+
+
+app.post('/flightdetails', (req, res) => {
+    // var cursor = db.collection('quotes').find()
+    console.log("flight id:"+req.body.flight_id)
+    db.collection('flightsData').findOne({"_id":ObjectId(req.body.flight_id)},function(err, results) {
+        console.log(results)
+        console.log(results._id)
+        res.status(200).json({flightdata:results})
+    })
+})
+
+app.post('/getFlights', (req, res) => {
+    // var cursor = db.collection('quotes').find()
+    console.log("stateName id:"+req.body.stateName)
+    db.collection('flightsData').find({"source":req.body.stateName}).toArray(function(err, results) {
+        console.log(results)
+        console.log(results._id)
+        res.status(200).json({files:results})
+    })
+})
+
+app.post('/getHotelsByCity', (req, res) => {
+    // var cursor = db.collection('quotes').find()
+    console.log("stateName id:"+req.body.stateName)
+    db.collection('hotelsData').find({"city":req.body.stateName}).toArray(function(err, results) {
+        console.log(results)
+        console.log(results._id)
+        res.status(200).json({hotels:results})
+    })
+})
+
+app.post('/getCarsByCity', (req, res) => {
+    // var cursor = db.collection('quotes').find()
+    console.log("stateName id:"+req.body.stateName)
+    db.collection('carsData').find({"location":req.body.stateName}).toArray(function(err, results) {
+        console.log(results)
+        console.log(results._id)
+        res.status(200).json({cars:results})
+    })
+})
+
+
+
+
+
+
+
