@@ -16,7 +16,7 @@ exports.account = function(req, res) {
 };
 
 exports.hotelPayment = function(req, res) {
-  res.render('hotel-payment');
+  res.render('hotel-payment', { finalHotelObj: req.session.loadHotelDetails });
 };
 
 exports.hotelDetails = function(req, res) {

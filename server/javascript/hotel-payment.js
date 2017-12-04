@@ -6,3 +6,7 @@ exports.loadBookHotel = function(req, res) {
     res.send(json_response);
   }
 };
+
+exports.loadFinalBookingHotel = function(req, res) {
+  res.send(req.session.hotelDetailsObj);
+};

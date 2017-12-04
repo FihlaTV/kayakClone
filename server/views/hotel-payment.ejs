@@ -29,7 +29,6 @@
 
 <body ng-app="hotelPayments" ng-controller="hotelPayments" ng-init="loadHotel();">
 
-
     <div class="global-wrap">
         <header id="main-header">
             <div class="header-top">
@@ -243,11 +242,12 @@
                     <div class="booking-item-payment">
                         <header class="clearfix">
                             <a class="booking-item-payment-img" href="#">
-                                <img src="img/800x600.png" alt="Image Alternative text" title="hotel 1" />
+                                <img src="{{loadedHotels.image}}" alt="Image Alternative text" title="hotel 1" />
                             </a>
-                            <h5 class="booking-item-payment-title"><a href="#">InterContinental New York Barclay</a></h5>
+                            <h5 class="booking-item-payment-title"><a href="#">{{loadedHotels.hotelName}}</a></h5>
                             <ul class="icon-group booking-item-rating-stars">
-                                <li><i class="fa fa-star"></i>
+                                <li>
+                                  <i class="fa fa-star"></i>
                                 </li>
                                 <li><i class="fa fa-star"></i>
                                 </li>
@@ -263,7 +263,7 @@
                             <li>
                                 <h5>Booking for 7 nights</h5>
                                 <div class="booking-item-payment-date">
-                                    <p class="booking-item-payment-date-day">April, 26</p>
+                                    <p class="booking-item-payment-date-day">{{loadedHotels.date}}</p>
                                     <p class="booking-item-payment-date-weekday">Saturday</p>
                                 </div><i class="fa fa-arrow-right booking-item-payment-date-separator"></i>
                                 <div class="booking-item-payment-date">

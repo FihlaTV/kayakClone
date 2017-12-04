@@ -7,10 +7,11 @@ hotelPayments.controller('hotelPayments', function($scope, $http) {
     //api or db
     $http({
       method: 'POST',
-      url: '/loadBookHotel'
+      url: '/loadFinalBookingHotel'
     })
       .success(function(data) {
         $scope.loadedHotels = data;
+        console.log(data);
         console.log('in loadBookHotel angular' + data);
       })
       .error(function(error) {
