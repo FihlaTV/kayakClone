@@ -80,7 +80,10 @@ app.post('/loadFinalBookingHotel', payment.loadFinalBookingHotel);
 app.post('/hotelsPaymentDetails', payment.hotelsPaymentDetails);
 app.get('/flightPayment', routes.flightPayment);
 app.post('/loadFlightPayment', flights.loadFlightPayment);
-
+app.post('/signout', function(req, res) {
+  req.session.destroy();
+  res.render('home');
+});
 app.get('/list', (req, res) => {
   // var cursor = db.collection('quotes').find()
   db
