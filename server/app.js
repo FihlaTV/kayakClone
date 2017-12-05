@@ -537,9 +537,9 @@ app.post('/flightBooking', urlencodedPraser, function(req, res) {
   var cvv = req.body.cvv;
   var name = req.body.name;
   var expdate = req.body.expdate;
-  var email = req.body.email;
+  var email = req.session.email;
 
-  var totalamount = req.body.totalamount;
+  var totalamount = req.session.oneFlightObj.totalAmount;
   //var ccpasscode =req.body.ccpasscode
 
   var options = {
@@ -551,39 +551,31 @@ app.post('/flightBooking', urlencodedPraser, function(req, res) {
   console.log('flight booking' + trip_id);
   //varfinalprice=
   var saveUser;
-  for (var i = 0; i < req.body.passenger_details.length; i++) {
+  for (var i = 0; i < req.session.oneFlightObj.noOfPassengers; i++) {
     saveUser =
       'insert into flightbookingdetails( email , tripid ,  flightsource ,  flightdestination ,  flightbaseprice ,  flighttotalprice ,' +
       '  flightpassengerdateofbirth ,  flightpassengerfirstname ,  flightpassengerlastname ,  flightpassengergender ,  journeydate ,  flightid ,  airlines ,' +
       "  flightclass  ) values('" +
-      req.body.email +
+      email +
       "','" +
       trip_id +
       "','" +
-      req.body.flight.flightsource +
+      req.session.oneFlightObj.OneWay.source +
       "','" +
-      req.body.flight.flightdestination +
+      req.session.oneFlightObj.OneWay.destination +
       "','" +
-      req.body.flight.flightbaseprice +
+      req.session.oneFlightObj.OneWay.costFlight +
       "','" +
       totalamount +
+      "',' sample1','sample2','sample3" +
       "','" +
-      req.body.passenger_details[i].flightpassengerdateofbirth +
+      req.session.oneFlightObj.OneWay.date +
       "','" +
-      req.body.passenger_details[i].flightpassengerfirstname +
+      req.session.oneFlightObj.OneWay._id +
       "','" +
-      req.body.passenger_details[i].flightpassengerlastname +
-      "','" +
-      req.body.passenger_details[i].flightpassengergender +
-      "','" +
-      req.body.journeydate +
-      "','" +
-      req.body.flight.flight_id +
-      "','" +
-      req.body.flight.airlines +
-      "','" +
-      req.body.flightclass +
-      "')";
+      req.session.oneFlightObj.OneWay.flightName +
+      "','sample4" +
+      "')'";
     console.log('Query is:' + saveUser);
     status = 0;
 
@@ -602,14 +594,13 @@ app.post('/flightBooking', urlencodedPraser, function(req, res) {
     "insert into tripdetails values('" +
     trip_id +
     "','" +
-    req.body.email +
+    email +
+    "',' economy" +
     "','" +
-    req.body.bookingtype +
-    "'," +
-    req.body.totalamount +
-    ",'" +
+    req.session.oneFlightObj.totalAmount +
+    "','" +
     new Date().toDateString() +
-    "')";
+    "')'";
   mysqldbservice.insertData(function(err, results) {
     if (err) {
       throw err;
@@ -627,11 +618,11 @@ app.post('/flightBooking', urlencodedPraser, function(req, res) {
     cvv +
     "','" +
     name +
-    "'," +
+    "','" +
     expdate +
-    ",'" +
+    "','" +
     email +
-    "')";
+    "')'";
   mysqldbservice.insertData(function(err, results) {
     if (err) {
       throw err;
@@ -640,8 +631,11 @@ app.post('/flightBooking', urlencodedPraser, function(req, res) {
       console.log('Data inserted successfully');
     }
   }, saveCcdata);
-
-  res.json({ staus: status });
+  var userObj = {
+    email: req.session.email,
+    flightObj: req.session.oneFlightObj
+  };
+  res.status(200).render('success-payment-flight', { userObj: userObj });
 });
 
 //app.get('/userinfo',mysqldbservice.getUserInfo)
