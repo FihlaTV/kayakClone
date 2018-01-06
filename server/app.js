@@ -178,15 +178,17 @@ app.post('/hotels', function(req, res) {
   var city = req.body.location.split(',')[0];
   var checkindate = req.body.start;
   var checkoutdate = req.body.end;
-
+// console.log(city);
   var noOfDays1 = checkindate.split(',')[0].split(' ')[1];
   var noOfDays2 = checkoutdate.split(',')[0].split(' ')[1];
   var totalDays = noOfDays2 - noOfDays1;
 
-  console.log('numbers of days stay ' + totalDays);
+  // console.log('numbers of days stay ' + totalDays);
 
   findhotelsCached = function(db, redis, city, checkindate, callback) {
+    // console.log(city, "iside findhtelcached");
     redis.hgetall('hotelsearchdata', function(err, reply) {
+      // console.log("entered hgetall");
       if (reply) {
         console.log('i m redis');
 
@@ -201,6 +203,7 @@ app.post('/hotels', function(req, res) {
           })
           .toArray(function(err, doc) {
             var data = doc;
+            console.log(data);
             for (var i = 0; i < data.length; i++) {
               data[i].amount = parseInt(data[i].price) * parseInt(totalDays);
               console.log(data[i].amount);
