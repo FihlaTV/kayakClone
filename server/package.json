@@ -1,7 +1,10 @@
 {
-  "name": "flight",
+  "name": "kayak",
   "version": "1.0.0",
-  "description": "",
+  "description": "An app similar to kayak.com",
+  "engines": {
+    "node": "8.5.0"
+  },
   "main": "index.js",
   "scripts": {
     "start": "nodemon app.js",
